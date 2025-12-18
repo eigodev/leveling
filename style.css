@@ -1,0 +1,119 @@
+/* Global */
+html, body, p {
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    width: 100vw;
+    height: 100vh;
+    
+    background: conic-gradient(from 64deg at 50%,  #b19900, #ffea64);
+    background-attachment: fixed;
+
+    font-family: "Nunito Sans", sans-serif;
+}
+
+div#content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 25px;
+    
+    height: auto;
+    width: auto;
+    padding: 50px;
+    margin: 0px;
+
+    background-color: #ffffff;
+    border-radius: 15px;
+}
+
+div#content h1 {
+    margin: 0px;
+    
+    font-family: "Sour Gummy", sans-serif;
+}
+
+div#content div.text {
+    display:flex;
+    flex-direction: column;
+    text-align: center;
+}
+
+div#content div.buttons button.button {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    padding: 10px 10px;
+    
+    border: none;
+    border-radius: 10px;
+    appearance: none;
+    outline: none;
+    
+    color: #ffffff;
+    font-family: "Sour Gummy", sans-serif;
+    font-size: 15px;
+    cursor: pointer;
+}
+
+/* Intro */
+div#content div.buttons button#introA,
+div#content div.buttons button#introB {
+    background-color: #b19900;
+    transition: 0.5s ease;
+}
+
+div#content div.buttons button#introA:hover,
+div#content div.buttons button#introB:hover {
+    color: #b19900;
+    background-color: #ffea64;
+    transition: 0.5s ease;
+}
+
+/* Level 1 */
+div#content div.buttons button#levelOneA,
+div#content div.buttons button#levelOneB {
+    background-color: #b10000;
+    transition: 0.5s ease;
+}
+
+div#content div.buttons button#levelOneA:hover,
+div#content div.buttons button#levelOneB:hover {
+    color: #b10000;
+    background-color: #ffa6a6;
+    transition: 0.5s ease;
+}
+
+/* Level 2 */
+div#content div.buttons button#levelTwoA,
+div#content div.buttons button#levelTwoB {
+    background-color: #001bb1;
+    transition: 0.5s ease;
+}
+
+div#content div.buttons button#levelTwoA:hover,
+div#content div.buttons button#levelTwoB:hover {
+    color: #001bb1;
+    background-color: #a6d4ff;
+    transition: 0.5s ease;
+}
+
+/* Level 3 */
+div#content div.buttons button#levelThreeA,
+div#content div.buttons button#levelThreeB {
+    background-color: #6ab100;
+    transition: 0.5s ease;
+}
+
+div#content div.buttons button#levelThreeA:hover,
+div#content div.buttons button#levelThreeB:hover {
+    color: #6ab100;
+    background-color: #dffcb4;
+    transition: 0.5s ease;
+}

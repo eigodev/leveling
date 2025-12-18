@@ -7,7 +7,7 @@ html, body, p {
 body {
     width: 100vw;
     height: 100vh;
-    background: conic-gradient(from 65deg at 50%,  #6ab100, #5a9f11);
+    background: conic-gradient(from 65deg at 50%,  #6ab100, #dffcb4);
     background-attachment: fixed;
 
     display: flex;

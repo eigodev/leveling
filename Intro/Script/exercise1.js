@@ -35,7 +35,7 @@ const questionDropdownOptions = [
 ];
 const AUDIO_SOURCE = 'Audios/IC5_Intro_T1-8A_Track09.mp3';
 const audioSegments = [
-    { start: 38, end: 70 },
+    { start: 39, end: 70 },
     { start: 101, end: 138 }
 ];
 const audioControllers = [];

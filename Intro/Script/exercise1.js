@@ -33,6 +33,7 @@ const questionDropdownOptions = [
         ['a view', 'a yard', 'a nice kitchen']
     ]
 ];
+
 const AUDIO_SOURCE = 'Audios/IC5_Intro_T1-8A_Track09.mp3';
 const audioSegments = [
     { start: 39, end: 70 },
@@ -51,24 +52,29 @@ const audioIconBlueprint = [
 ];
 
 for (let index = 0; index < subitems.length; index++) {
-    // Create <p> called letter
+    // Create tags
     const letter = createTag('p');
-    setClass(letter, 'letter');
-    setContent(letter, letterContent[index] ?? '');
-    appendChilds(subitems[index], letter);
-
-    // Create <p> called headline
     const headline = createTag('p');
-    setClass(headline, 'headline');
-    setContent(headline, headlineContent[index] ?? '');
-    appendChilds(subitems[index], headline);
-
-    // Create <div> called audioplayer
     const audioplayer = createTag('div');
+
+    // Create classes
+    setClass(letter, 'letter');
+    setClass(headline, 'headline');
     setClass(audioplayer, 'audioPlayer');
+    
+    // Set content
+    setContent(letter, letterContent[index] ?? '');
+    setContent(headline, headlineContent[index] ?? '');
+    
+    // Append tags to subitem
+    appendChilds(subitems[index], letter);
+    appendChilds(subitems[index], headline);
     appendChilds(subitems[index], audioplayer);
 
+    // Create audio icons
     const audioIcons = {};
+
+    // Create audio icons
     audioIconBlueprint.forEach((iconConfig) => {
         const icon = createAudioIcon(iconConfig);
         appendChilds(audioplayer, icon);
@@ -121,9 +127,6 @@ for (let index = 0; index < subitems.length; index++) {
 }
 
 /* EVENT LISTENER – track correct items for Exercise 1 */
-// Follows the model in the picture: when the "Check answers" button is clicked,
-// we clear the console, calculate how many items are correct in Exercise 1,
-// and store that result in `studentChoices.choicesOne` plus rich history.
 window.addEventListener('load', () => {
     const button = document.getElementById('check-answers');
     if (!button || !window.studentChoices || !window.expectedAnswers) return;
@@ -136,10 +139,6 @@ window.addEventListener('load', () => {
         const details = [];
 
         // Concept / skill mapping for each question in Exercise 1
-        // Index 0 -> Exercise A, number 1
-        // Index 1 -> Exercise A, number 2
-        // Index 2 -> Exercise B, number 1
-        // Index 3 -> Exercise B, number 2
         const skillMap = [
             {
                 code: 'A1',
@@ -193,7 +192,6 @@ window.addEventListener('load', () => {
         const percentage = Math.round(finalScore(score, totalQuestions));
 
         // For Exercise 1 we keep the array as the list of correct answers
-        // e.g. ['in a gym', 'go jogging', ...]
         window.studentChoices.choicesOne = correctAnswersChosen;
 
         // Figure out which skill areas need review (any area with at least one wrong answer)
@@ -226,7 +224,6 @@ function createAudioIcon (config) {
     if (config.hidden) {
         icon.style.display = 'none';
     }
-
     return icon;
 }
 
@@ -361,8 +358,20 @@ function setupAudioControls ({
         }
     };
 
-    const startPlayback = () => {
+    const waitforSeekable = () => {
+        if (audioElement.readyState >= 1) return Promise.resolve();
+        return new Promise((resolve) => {
+            const done = () => resolve();
+            audioElement.addEventListener('loadedmetadata', done, {once: true});
+            audioElement.addEventListener('progress', done, {once: true});
+
+            audioElement.load?.();
+        });
+    };
+
+    const startPlayback = async () => {
         stopOtherControllers(controller);
+        await waitforSeekable();
         ensureWithinSegment();
         audioElement.play()
             .then(() => {

@@ -359,8 +359,20 @@ function setupAudioControls ({
         }
     };
 
-    const startPlayback = () => {
+    const waitforSeekable = () => {
+        if (audioElement.readyState >= 1) return Promise.resolve();
+        return new Promise((resolve) => {
+            const done = () => resolve();
+            audioElement.addEventListener('loadedmetadata', done, {once: true});
+            audioElement.addEventListener('progress', done, {once: true});
+
+            audioElement.load?.();
+        });
+    };
+
+    const startPlayback = async () => {
         stopOtherControllers(controller);
+        await waitforSeekable();
         ensureWithinSegment();
         audioElement.play()
             .then(() => {

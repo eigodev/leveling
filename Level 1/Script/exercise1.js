@@ -370,10 +370,36 @@ function setupAudioControls ({
         });
     };
 
+    // Initialize audio time to segmentStart when metadata loads
+    const initializeAudioTime = () => {
+        const setInitialTime = () => {
+            try {
+                setAudioTime(segmentStart);
+            } catch (error) {
+                // If setting time fails (e.g., not seekable yet), try again on next event
+                console.warn('Failed to set initial audio time, will retry:', error);
+            }
+        };
+
+        if (audioElement.readyState >= 1) {
+            // Metadata already loaded, set time immediately
+            setInitialTime();
+        } else {
+            // Wait for metadata to load, then set time
+            const onMetadataLoaded = () => {
+                setInitialTime();
+            };
+            audioElement.addEventListener('loadedmetadata', onMetadataLoaded, {once: true});
+            // Also try on canplay event as a fallback
+            audioElement.addEventListener('canplay', setInitialTime, {once: true});
+        }
+    };
+
     const startPlayback = async () => {
         stopOtherControllers(controller);
         await waitforSeekable();
-        ensureWithinSegment();
+        // Explicitly set time to segmentStart before playing to ensure it starts at the correct position
+        setAudioTime(segmentStart);
         audioElement.play()
             .then(() => {
                 showPause();
@@ -394,6 +420,9 @@ function setupAudioControls ({
         const targetTime = audioElement.currentTime + deltaSeconds;
         setAudioTime(targetTime);
     };
+
+    // Initialize the audio time to segmentStart when controls are set up
+    initializeAudioTime();
 
     playIcon.addEventListener('click', startPlayback);
     pauseIcon.addEventListener('click', pausePlayback);

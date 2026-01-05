@@ -9,15 +9,15 @@ appendChilds(exerciseFourContainer, contentFour);
 
 const exerciseFourData = {
     1: {
-        sentence: 'Robert is handsome. He’s very _.',
+        sentence: 'Robert is handsome. He\'s very _.',
         options: ['friendly', 'good-looking', 'serious']
     },
     2: {
-        sentence: 'Anne works in a store, and she handles money. She’s _.',
+        sentence: 'Anne works in a store, and she handles money. She\'s _.',
         options: ['a cashier', 'a manager', 'a secretary']
     },
     3: {
-        sentence: 'Mid doesn’t like her job. It’s very _.',
+        sentence: 'Mia doesn\'t like her job. It\'s very _.',
         options: ['interesting', 'exciting', 'boring']
     },
     4: {
@@ -25,7 +25,7 @@ const exerciseFourData = {
         options: ['wife', 'daughter', 'sister']
     },
     5: {
-        sentence: 'It’s 10:00 A.M., and Zachary is sleeping. He gets up late _ Saturdays.',
+        sentence: 'It\'s 10:00 A.M., and Zachary is sleeping. He gets up late _ Saturdays.',
         options: ['on', 'in', 'at']
     }
 };

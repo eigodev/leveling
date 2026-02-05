@@ -54,34 +54,28 @@ const exerciseEightData = [
 ];
 
 exerciseEightData.forEach(({ number, sentence, options }, exerciseIndex) => {
-    const exerciseWrapper = createTag('div');
-    setClass(exerciseWrapper, 'conversation');
-    appendChilds(contentEight, exerciseWrapper);
+    // content > (5x) sentence-rows > p.number + div.sentence-rows > p.text + select
+    const sentenceRowsOuter = createTag('div');
+    setClass(sentenceRowsOuter, 'sentence-rows');
+    appendChilds(contentEight, sentenceRowsOuter);
 
     const exerciseNumber = createTag('p');
     setClass(exerciseNumber, 'number');
     setContent(exerciseNumber, `${number || exerciseIndex + 1}.`);
-    appendChilds(exerciseWrapper, exerciseNumber);
+    appendChilds(sentenceRowsOuter, exerciseNumber);
 
-    // Row A: sentence text
-    const rowA = createTag('div');
-    setClass(rowA, 'conversation-row');
+    const sentenceRowsInner = createTag('div');
+    setClass(sentenceRowsInner, 'sentence-row');
 
     const sentenceText = createTag('p');
     setClass(sentenceText, 'text');
     setContent(sentenceText, sentence);
 
-    appendChilds(rowA, sentenceText);
-    appendChilds(exerciseWrapper, rowA);
-
-    // Row B: dropdown with three possible replies
-    const rowB = createTag('div');
-    setClass(rowB, 'conversation-row');
-
     const replySelect = createExerciseEightDropdown(options);
 
-    appendChilds(rowB, replySelect);
-    appendChilds(exerciseWrapper, rowB);
+    appendChilds(sentenceRowsInner, sentenceText);
+    appendChilds(sentenceRowsInner, replySelect);
+    appendChilds(sentenceRowsOuter, sentenceRowsInner);
 });
 
 function createExerciseEightDropdown (options = []) {

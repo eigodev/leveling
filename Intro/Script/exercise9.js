@@ -98,8 +98,11 @@ exerciseNineData.forEach((item) => {
     setContent(exerciseNumber, `${number}.`);
     appendChilds(exerciseWrapper, exerciseNumber);
 
-    // Dialogue items: two rows, A and B
+    // Dialogue items (1, 4, 5, 6): two rows A and B wrapped in div.sentence
     if (lines) {
+        const sentenceWrapper = createTag('div');
+        setClass(sentenceWrapper, 'sentence');
+
         (['A', 'B']).forEach((speakerKey) => {
             const text = lines[speakerKey];
             if (!text) return;
@@ -109,7 +112,7 @@ exerciseNineData.forEach((item) => {
 
             const speakerLabel = createTag('p');
             setClass(speakerLabel, 'letter');
-            setContent(speakerLabel, `${speakerKey.toLowerCase()}.`);
+            setContent(speakerLabel, `${speakerKey}.`);
 
             const speakerLine = createTag('p');
             setClass(speakerLine, 'text');
@@ -119,8 +122,10 @@ exerciseNineData.forEach((item) => {
 
             appendChilds(conversationRow, speakerLabel);
             appendChilds(conversationRow, speakerLine);
-            appendChilds(exerciseWrapper, conversationRow);
+            appendChilds(sentenceWrapper, conversationRow);
         });
+
+        appendChilds(exerciseWrapper, sentenceWrapper);
         return;
     }
 

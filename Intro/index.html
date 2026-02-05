@@ -18,14 +18,20 @@
     <link href="https://fonts.googleapis.com/css2?family=Sour+Gummy:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Edu+NSW+ACT+Cursive:wght@400..700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Walter+Turncoat&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Dongle&display=swap" rel="stylesheet">
 
     <!-- PDF library (jsPDF) -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
 <body>
-    <div id="content"></div>
-    <div id="button-answers"></div>
+    <div id="content">
+        <div id="buttons">
+            <div id="check-answers"></div>
+            <div id="download-report"></div>
+        </div>
+    </div>    
     <div id="popup-info"></div>
+    <div id="popup-alert"></div>
     <div id="popup-score"></div>
 
     <!-- Script -->
@@ -44,5 +50,6 @@
     <script src="Script/info.js"></script>
     <script src="Script/score.js"></script>
     <script src="Script/checkAnswers.js"></script>
+    <script src="Script/report.js"></script>
 </body>
 </html>

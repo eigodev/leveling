@@ -20,213 +20,252 @@ const exerciseThreeSubjects = {
 
 // Scrambled order on the right column (not aligned with subjects)
 const exerciseThreePossessives = {
-    possOne: 'your',
-    possTwo: 'her',
-    possThree: 'their',
-    possFour: 'my',
+    possOne: 'my',
+    possTwo: 'your',
+    possThree: 'his',
+    possFour: 'her',
     possFive: 'our',
-    possSix: 'his',
+    possSix: 'their',
     possSeven: 'Mary\'s'
 };
 
-// Matching area (two columns: Subject · Possessives)
-const matchingAreaThree = createTag('div');
-setClass(matchingAreaThree, 'matching-area');
-appendChilds(contentThree, matchingAreaThree);
+const exerciseThreeContent = document.querySelector('#exercise-Three div.content');
+const divSubjects = createTag('div');
+const divPossessives = createTag('div');
+const divDividerLeft = createTag('div');
+const divDividerRight = createTag('div');
+const matchingArea = createTag('div');
 
-const connectionLayerThree = document.createElementNS(
-    'http://www.w3.org/2000/svg',
-    'svg'
-);
-connectionLayerThree.classList.add('connection-layer');
-matchingAreaThree.appendChild(connectionLayerThree);
+setClass(divSubjects, 'subjects');
+setClass(divDividerLeft, 'divider-left');
+setClass(divDividerRight, 'divider-right');
+setClass(divPossessives, 'possessives');
+setClass(matchingArea, 'matching-area');
 
-const subjectsContainer = createTag('div');
-setClass(subjectsContainer, 'subjects');
-appendChilds(matchingAreaThree, subjectsContainer);
+appendChilds(exerciseThreeContent, divSubjects);
+appendChilds(exerciseThreeContent, divDividerLeft);
+appendChilds(exerciseThreeContent, matchingArea);
+appendChilds(exerciseThreeContent, divDividerRight);
+appendChilds(exerciseThreeContent, divPossessives);
 
-const middleDividerThree = createTag('div');
-setClass(middleDividerThree, 'divider');
-appendChilds(matchingAreaThree, middleDividerThree);
+// Create SVG layer for drawing connection lines
+const connectionLayer = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+connectionLayer.classList.add('connection-layer');
+matchingArea.appendChild(connectionLayer);
 
-const possessivesContainer = createTag('div');
-setClass(possessivesContainer, 'possessives');
-appendChilds(matchingAreaThree, possessivesContainer);
-
+// Connection state for tracking matches
 const connectionStateThree = {
     active: null,
     questionConnections: new Map(),
     answerConnections: new Map()
 };
 
-// Column headers: "Subject" above subjects; "Possessives" above possessives
-const subjectHeader = createTag('p');
-setClass(subjectHeader, 'column-header');
-setContent(subjectHeader, 'Subject');
-appendChilds(subjectsContainer, subjectHeader);
+// Make connectionStateThree globally available
+window.connectionStateThree = connectionStateThree;
 
-const possHeader = createTag('p');
-setClass(possHeader, 'column-header');
-setContent(possHeader, 'Possessives');
-appendChilds(possessivesContainer, possHeader);
+// Titles
+const titleSubjects = createTag('p')
+const titlePossessives = createTag('p')
+const titleDividerLeft = createTag('p')
+const titleDividerRight = createTag('p')
+// Classes
+setClass(titleSubjects, 'title');
+setClass(titlePossessives, 'title');
+setClass(titleDividerLeft, 'titleDivider');
+setClass(titleDividerRight, 'titleDivider');
+// Content
+setContent(titleSubjects, 'Subjects');
+setContent(titlePossessives, 'Possessives');
+setContent(titleDividerLeft, 'a');
+setContent(titleDividerRight, 'a');
+// Appending
+appendChilds(divSubjects, titleSubjects);
+appendChilds(divPossessives, titlePossessives);
+appendChilds(divDividerLeft, titleDividerLeft);
+appendChilds(divDividerRight, titleDividerRight);
 
-// Build left column (subjects)
-Object.entries(exerciseThreeSubjects).forEach(([subjectId, subjectText]) => {
-    const subjectRow = createTag('div');
-    const text = createTag('p');
-    const square = createTag('div');
+Object.entries(exerciseThreeSubjects).forEach(([subjectId, subject]) => {
+    // Tags
+    const subjectItem = createTag('p')
+    const dividerItem = createTag('p')
 
-    setClass(subjectRow, 'row subject-row');
-    setClass(text, 'text');
-    setClass(square, 'square question-square');
+    // Classes
+    setClass(subjectItem, 'subject');
+    setClass(dividerItem, 'divider');
+    setClass(dividerItem, 'subject-square');
 
-    square.dataset.questionId = subjectId;
-    setContent(text, subjectText);
+    // Data attributes for matching
+    dividerItem.dataset.subjectId = subjectId;
 
-    appendChilds(subjectRow, text);
-    appendChilds(subjectRow, square);
-    appendChilds(subjectsContainer, subjectRow);
+    // Content
+    setContent(subjectItem, subject);
+    setContent(dividerItem, '');
 
-    square.addEventListener('pointerdown', (event) =>
-        handleQuestionPointerDownThree(event, subjectId, square)
+    // Appending
+    appendChilds(divSubjects, subjectItem);
+    appendChilds(divDividerLeft, dividerItem);
+
+    // Add click handler for matching
+    dividerItem.addEventListener('pointerdown', (event) =>
+        handleSubjectPointerDown(event, subjectId, dividerItem)
     );
-});
+})
 
-// Build right column (possessives)
-Object.entries(exerciseThreePossessives).forEach(([possId, possText]) => {
-    const possRow = createTag('div');
-    const square = createTag('div');
-    const text = createTag('p');
-
-    setClass(possRow, 'row answer-row');
-    setClass(square, 'square answer-square');
-    setClass(text, 'text');
-
-    square.dataset.answerId = possId;
-    setContent(text, possText);
-
-    appendChilds(possRow, square);
-    appendChilds(possRow, text);
-    appendChilds(possessivesContainer, possRow);
-});
-
-function handleQuestionPointerDownThree (event, questionId, square) {
-    event.preventDefault();
-    startConnectionThree(questionId, square);
+// Shuffle the possessives array to randomize display order
+function shuffleArray(array) {
+    const shuffled = [...array];
+    for (let i = shuffled.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+    return shuffled;
 }
 
-function startConnectionThree (questionId, questionSquare) {
-    removeConnectionThree(questionId);
-    updateConnectionLayerSizeThree();
+// Convert possessives object to array, shuffle it, then create elements
+const possessiveEntries = Object.entries(exerciseThreePossessives);
+const shuffledPossessives = shuffleArray(possessiveEntries);
 
-    const startPoint = getSquareCenterThree(questionSquare);
-    const line = createSvgLineThree(startPoint);
-    connectionLayerThree.appendChild(line);
+shuffledPossessives.forEach(([possId, possessive]) => {
+    // Tags
+    const possessiveItem = createTag('p')
+    const dividerItem = createTag('p')
+
+    // Classes
+    setClass(possessiveItem, 'possessive');
+    setClass(dividerItem, 'divider');
+    setClass(dividerItem, 'possessive-square');
+
+    // Data attributes for matching
+    dividerItem.dataset.possessiveId = possId;
+
+    // Content
+    setContent(possessiveItem, possessive);
+    setContent(dividerItem, '');
+
+    // Appending
+    appendChilds(divPossessives, possessiveItem);
+    appendChilds(divDividerRight, dividerItem);
+})
+
+// Matching functionality functions
+function handleSubjectPointerDown(event, subjectId, square) {
+    event.preventDefault();
+    startConnection(subjectId, square);
+}
+
+function startConnection(subjectId, subjectSquare) {
+    removeConnection(subjectId);
+    updateConnectionLayerSize();
+
+    const startPoint = getSquareCenter(subjectSquare);
+    const line = createSvgLine(startPoint);
+    connectionLayer.appendChild(line);
 
     connectionStateThree.active = {
-        questionId,
-        questionSquare,
+        subjectId,
+        subjectSquare,
         line
     };
 
-    window.addEventListener('pointermove', handlePointerMoveThree);
-    window.addEventListener('pointerup', handlePointerUpThree);
+    window.addEventListener('pointermove', handlePointerMove);
+    window.addEventListener('pointerup', handlePointerUp);
 }
 
-function handlePointerMoveThree (event) {
+function handlePointerMove(event) {
     if (!connectionStateThree.active) {
         return;
     }
 
-    const point = getRelativePointThree(event);
-    setLineEndThree(connectionStateThree.active.line, point);
+    const point = getRelativePoint(event);
+    setLineEnd(connectionStateThree.active.line, point);
 }
 
-function handlePointerUpThree (event) {
+function handlePointerUp(event) {
     if (!connectionStateThree.active) {
         return;
     }
 
-    const answerSquare = getAnswerSquareFromEventThree(event);
+    const possessiveSquare = getPossessiveSquareFromEvent(event);
 
-    if (answerSquare?.dataset.answerId) {
-        finalizeConnectionThree(answerSquare);
+    if (possessiveSquare?.dataset.possessiveId) {
+        finalizeConnection(possessiveSquare);
     } else {
         connectionStateThree.active.line.remove();
     }
 
-    cleanupActiveConnectionListenersThree();
+    cleanupActiveConnectionListeners();
     connectionStateThree.active = null;
 }
 
-function finalizeConnectionThree (answerSquare) {
-    const { questionId, questionSquare, line } = connectionStateThree.active;
-    const answerId = answerSquare.dataset.answerId;
+function finalizeConnection(possessiveSquare) {
+    const { subjectId, subjectSquare, line } = connectionStateThree.active;
+    const possessiveId = possessiveSquare.dataset.possessiveId;
 
-    removeConnectionByAnswerThree(answerId);
+    removeConnectionByPossessive(possessiveId);
 
-    const startPoint = getSquareCenterThree(questionSquare);
-    const endPoint = getSquareCenterThree(answerSquare);
-    setLinePositionsThree(line, startPoint, endPoint);
+    const startPoint = getSquareCenter(subjectSquare);
+    const endPoint = getSquareCenter(possessiveSquare);
+    setLinePositions(line, startPoint, endPoint);
 
-    connectionStateThree.questionConnections.set(questionId, {
-        answerId,
+    connectionStateThree.questionConnections.set(subjectId, {
+        answerId: possessiveId,
         line,
-        questionSquare,
-        answerSquare
+        questionSquare: subjectSquare,
+        answerSquare: possessiveSquare
     });
-    connectionStateThree.answerConnections.set(answerId, questionId);
+    connectionStateThree.answerConnections.set(possessiveId, subjectId);
 }
 
-function removeConnectionThree (questionId) {
-    const existingConnection =
-        connectionStateThree.questionConnections.get(questionId);
+function removeConnection(subjectId) {
+    const existingConnection = connectionStateThree.questionConnections.get(subjectId);
     if (!existingConnection) {
         return;
     }
 
     existingConnection.line.remove();
-    connectionStateThree.questionConnections.delete(questionId);
+    connectionStateThree.questionConnections.delete(subjectId);
     connectionStateThree.answerConnections.delete(existingConnection.answerId);
 }
 
-function removeConnectionByAnswerThree (answerId) {
-    const questionId = connectionStateThree.answerConnections.get(answerId);
-    if (questionId) {
-        removeConnectionThree(questionId);
+function removeConnectionByPossessive(possessiveId) {
+    const subjectId = connectionStateThree.answerConnections.get(possessiveId);
+    if (subjectId) {
+        removeConnection(subjectId);
     }
 }
 
-function cleanupActiveConnectionListenersThree () {
-    window.removeEventListener('pointermove', handlePointerMoveThree);
-    window.removeEventListener('pointerup', handlePointerUpThree);
+function cleanupActiveConnectionListeners() {
+    window.removeEventListener('pointermove', handlePointerMove);
+    window.removeEventListener('pointerup', handlePointerUp);
 }
 
-function createSvgLineThree (startPoint) {
+function createSvgLine(startPoint) {
     const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
     path.setAttribute('fill', 'none');
-    setLinePositionsThree(path, startPoint, startPoint);
+    path.setAttribute('stroke', '#7A4A00');
+    path.setAttribute('stroke-width', '2');
+    setLinePositions(path, startPoint, startPoint);
     return path;
 }
 
-function setLinePositionsThree (line, startPoint, endPoint) {
+function setLinePositions(line, startPoint, endPoint) {
     line.dataset.x1 = startPoint.x;
     line.dataset.y1 = startPoint.y;
-    setLineEndThree(line, endPoint ?? startPoint);
+    setLineEnd(line, endPoint ?? startPoint);
 }
 
-function setLineEndThree (line, point) {
+function setLineEnd(line, point) {
     const startPoint = {
         x: Number(line.dataset.x1),
         y: Number(line.dataset.y1)
     };
-    const pathData = buildCurvePathThree(startPoint, point);
+    const pathData = buildCurvePath(startPoint, point);
     line.setAttribute('d', pathData);
 }
 
-function getSquareCenterThree (square) {
+function getSquareCenter(square) {
     const squareRect = square.getBoundingClientRect();
-    const areaRect = matchingAreaThree.getBoundingClientRect();
+    const areaRect = exerciseThreeContent.getBoundingClientRect();
 
     return {
         x: squareRect.left - areaRect.left + squareRect.width / 2,
@@ -234,54 +273,79 @@ function getSquareCenterThree (square) {
     };
 }
 
-function getRelativePointThree (event) {
-    const areaRect = matchingAreaThree.getBoundingClientRect();
+function getRelativePoint(event) {
+    const areaRect = exerciseThreeContent.getBoundingClientRect();
     return {
         x: event.clientX - areaRect.left,
         y: event.clientY - areaRect.top
     };
 }
 
-function getAnswerSquareFromEventThree (event) {
-    const directSquare = event.target.closest('.answer-square');
-    if (directSquare) {
+function getPossessiveSquareFromEvent(event) {
+    // Check if clicking directly on a possessive square
+    const directSquare = event.target.closest('.possessive-square');
+    if (directSquare && directSquare.dataset.possessiveId) {
         return directSquare;
     }
 
-    const answerRow = event.target.closest('.answer-row');
-    return answerRow ? answerRow.querySelector('.answer-square') : null;
+    // Check if clicking on a possessive item - find corresponding square
+    const possessiveItem = event.target.closest('.possessive');
+    if (possessiveItem) {
+        const possessiveRow = possessiveItem.parentElement;
+        const possessiveIndex = Array.from(possessiveRow.querySelectorAll('.possessive')).indexOf(possessiveItem);
+        if (possessiveIndex >= 0) {
+            const possessiveSquares = Array.from(divDividerRight.querySelectorAll('.possessive-square'));
+            if (possessiveSquares[possessiveIndex]) {
+                return possessiveSquares[possessiveIndex];
+            }
+        }
+    }
+
+    // Check if clicking near a possessive square
+    const allPossessiveSquares = Array.from(divDividerRight.querySelectorAll('.possessive-square'));
+    for (const square of allPossessiveSquares) {
+        const rect = square.getBoundingClientRect();
+        if (
+            event.clientX >= rect.left &&
+            event.clientX <= rect.right &&
+            event.clientY >= rect.top &&
+            event.clientY <= rect.bottom
+        ) {
+            return square;
+        }
+    }
+
+    return null;
 }
 
-function updateConnectionLayerSizeThree () {
-    const { height } = matchingAreaThree.getBoundingClientRect();
-    connectionLayerThree.setAttribute('height', height);
+function updateConnectionLayerSize() {
+    const rect = exerciseThreeContent.getBoundingClientRect();
+    connectionLayer.setAttribute('width', rect.width);
+    connectionLayer.setAttribute('height', rect.height);
+    connectionLayer.style.position = 'absolute';
+    connectionLayer.style.top = '0';
+    connectionLayer.style.left = '0';
+    connectionLayer.style.pointerEvents = 'none';
+    connectionLayer.style.zIndex = '1';
 }
 
-function refreshConnectionLinesThree () {
+function refreshConnectionLines() {
     connectionStateThree.questionConnections.forEach(
         ({ line, questionSquare, answerSquare }) => {
-            const startPoint = getSquareCenterThree(questionSquare);
-            const endPoint = getSquareCenterThree(answerSquare);
-            setLinePositionsThree(line, startPoint, endPoint);
+            const startPoint = getSquareCenter(questionSquare);
+            const endPoint = getSquareCenter(answerSquare);
+            setLinePositions(line, startPoint, endPoint);
         }
     );
 }
 
-function buildCurvePathThree (startPoint, endPoint) {
+function buildCurvePath(startPoint, endPoint) {
     const controlX = (startPoint.x + endPoint.x) / 2;
     return `M ${startPoint.x} ${startPoint.y} C ${controlX} ${startPoint.y}, ${controlX} ${endPoint.y}, ${endPoint.x} ${endPoint.y}`;
 }
 
-const handleResizeThree = () => {
-    updateConnectionLayerSizeThree();
-    refreshConnectionLinesThree();
-};
-
-handleResizeThree();
-window.addEventListener('resize', handleResizeThree);
-
-function resetExerciseThreeConnections () {
-    if (!connectionStateThree || !connectionLayerThree) return;
+function resetExerciseThreeConnections() {
+    if (!connectionStateThree || !connectionLayer) return;
 
     connectionStateThree.questionConnections.forEach(({ line }) => {
         if (line && typeof line.remove === 'function') {
@@ -291,15 +355,27 @@ function resetExerciseThreeConnections () {
     connectionStateThree.questionConnections.clear();
     connectionStateThree.answerConnections.clear();
 
-    updateConnectionLayerSizeThree();
+    updateConnectionLayerSize();
 }
 
 // Expose reset helper globally so other scripts can clear Exercise 3
 window.resetExerciseThreeConnections = resetExerciseThreeConnections;
 
+// Initialize connection layer and handle resize
+const handleResize = () => {
+    updateConnectionLayerSize();
+    refreshConnectionLines();
+};
+
+// Wait for DOM to be ready
+setTimeout(() => {
+    handleResize();
+    window.addEventListener('resize', handleResize);
+}, 100);
+
 /* EVENT LISTENER – track answers for Exercise 3 (matching possessives) */
 window.addEventListener('load', () => {
-    const button = document.getElementById('check-answers');
+    const button = document.getElementById('check-answers-button');
     if (
         !button ||
         !window.studentChoices ||

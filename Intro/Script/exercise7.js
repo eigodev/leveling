@@ -14,8 +14,8 @@ function showExerciseSevenWarning () {
     if (exerciseSevenWarningShown) return;
     exerciseSevenWarningShown = true;
 
-    const popupInfo = document.getElementById('popup-info');
-    if (!popupInfo) {
+    const popupAlert = document.getElementById('popup-alert');
+    if (!popupAlert) {
         // Fallback if the styled popup container is not available
         window.alert(
             'Antes de clicar em "Check Answers", verifique se você digitou corretamente as sentenças.'
@@ -23,30 +23,26 @@ function showExerciseSevenWarning () {
         return;
     }
 
-    popupInfo.innerHTML = '';
+    popupAlert.innerHTML = '';
 
     const message = document.createElement('p');
-    message.classList.add('exercise-warning');
+    message.classList.add('alert-message');
     message.textContent =
-        'Antes de clicar em "Check Answers", verifique se você digitou corretamente as sentenças.';
+        'Antes de clicar no botão "Check Answers", verifique se você digitou corretamente as sentenças. Não esqueça de usar pontuação!';
 
     const okButton = document.createElement('button');
     okButton.textContent = 'OK';
-    okButton.classList.add('student-info-button');
+    okButton.classList.add('alert-button');
     okButton.addEventListener('click', () => {
-        popupInfo.style.display = 'none';
+        popupAlert.style.display = 'none';
     });
 
-    popupInfo.appendChild(message);
-    popupInfo.appendChild(okButton);
-    popupInfo.style.display = 'flex';
+    popupAlert.appendChild(message);
+    popupAlert.appendChild(okButton);
+    popupAlert.style.display = 'flex';
 }
 
 // Same visual structure as Level 1 – Exercise 2:
-// For each item:
-//  - number
-//  - row a: A. + [input]
-//  - row b: B. + fixed answer
 const exerciseSevenAnswers = [
     "I'm fine, thanks.",
     "I'm 28 years old.",
@@ -55,22 +51,26 @@ const exerciseSevenAnswers = [
 ];
 
 exerciseSevenAnswers.forEach((answer, exerciseIndex) => {
-    const exerciseWrapper = createTag('div');
-    setClass(exerciseWrapper, 'conversation');
-    appendChilds(contentSeven, exerciseWrapper);
+    const conversationRows = createTag('div');
+    setClass(conversationRows, 'conversation-rows');
+    appendChilds(contentSeven, conversationRows);
 
     const exerciseNumber = createTag('p');
     setClass(exerciseNumber, 'number');
     setContent(exerciseNumber, `${exerciseIndex + 1}.`);
-    appendChilds(exerciseWrapper, exerciseNumber);
+    appendChilds(conversationRows, exerciseNumber);
 
-    // Row a: typed question
+    // Single row: A. + text (input) + B. + text (answer)
+    const conversationRow = createTag('div');
+    setClass(conversationRow, 'conversation-row');
+
+    // Row A: A. + input
     const rowA = createTag('div');
-    setClass(rowA, 'conversation-row');
+    setClass(rowA, 'rowA');
 
     const speakerALabel = createTag('p');
     setClass(speakerALabel, 'letter');
-    setContent(speakerALabel, 'a.');
+    setContent(speakerALabel, 'A.');
 
     const questionInput = createTag('input');
     setClass(questionInput, 'sentence-input');
@@ -86,15 +86,14 @@ exerciseSevenAnswers.forEach((answer, exerciseIndex) => {
 
     appendChilds(rowA, speakerALabel);
     appendChilds(rowA, questionInput);
-    appendChilds(exerciseWrapper, rowA);
 
-    // Row b: answer text
+    // Row B: B. + text (answer)
     const rowB = createTag('div');
-    setClass(rowB, 'conversation-row');
+    setClass(rowB, 'rowB');
 
     const speakerBLabel = createTag('p');
     setClass(speakerBLabel, 'letter');
-    setContent(speakerBLabel, 'b.');
+    setContent(speakerBLabel, 'B.');
 
     const answerText = createTag('p');
     setClass(answerText, 'text');
@@ -102,5 +101,8 @@ exerciseSevenAnswers.forEach((answer, exerciseIndex) => {
 
     appendChilds(rowB, speakerBLabel);
     appendChilds(rowB, answerText);
-    appendChilds(exerciseWrapper, rowB);
+
+    appendChilds(conversationRow, rowA);
+    appendChilds(conversationRow, rowB);
+    appendChilds(conversationRows, conversationRow);
 });

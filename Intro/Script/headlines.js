@@ -8,7 +8,7 @@ const textExercise = [
 const headline = [
     "Listen to the people talking.",
     "Complete the conversation.",
-    "Complete this chart.",
+    "Match the columns;",
     "Check the correct words to complete the sentences.",
     "Complete the conversation.",
     "Choose the correct words.",
@@ -21,7 +21,7 @@ const headline = [
 const guideline = [
     "Check the correct answers.",
     "Use the correct form of BE (am. is. are)",
-    "",
+    "Compare the subjects and possessives.",
     "Complete the sentences",
     "Use the words in the box",
     "",

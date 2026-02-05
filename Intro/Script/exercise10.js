@@ -97,8 +97,11 @@ exerciseTenData.forEach((item) => {
     setContent(exerciseNumber, `${number}.`);
     appendChilds(exerciseWrapper, exerciseNumber);
 
-    // Dialogue items: two rows, A and B
+    // Dialogue items: two rows A and B wrapped in div.sentences
     if (lines) {
+        const sentencesWrapper = createTag('div');
+        setClass(sentencesWrapper, 'sentences');
+
         (['A', 'B']).forEach((speakerKey) => {
             const text = lines[speakerKey];
             if (!text) return;
@@ -108,7 +111,7 @@ exerciseTenData.forEach((item) => {
 
             const speakerLabel = createTag('p');
             setClass(speakerLabel, 'letter');
-            setContent(speakerLabel, `${speakerKey.toLowerCase()}.`);
+            setContent(speakerLabel, `${speakerKey}.`);
 
             const speakerLine = createTag('p');
             setClass(speakerLine, 'text');
@@ -118,8 +121,10 @@ exerciseTenData.forEach((item) => {
 
             appendChilds(conversationRow, speakerLabel);
             appendChilds(conversationRow, speakerLine);
-            appendChilds(exerciseWrapper, conversationRow);
+            appendChilds(sentencesWrapper, conversationRow);
         });
+
+        appendChilds(exerciseWrapper, sentencesWrapper);
         return;
     }
 

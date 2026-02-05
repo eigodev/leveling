@@ -52,12 +52,16 @@ const audioIconBlueprint = [
 ];
 
 for (let index = 0; index < subitems.length; index++) {
+    // Create headline-row wrapper
+    
     // Create tags
+    const headlineRow = createTag('div');
     const letter = createTag('p');
     const headline = createTag('p');
     const audioplayer = createTag('div');
-
+    
     // Create classes
+    setClass(headlineRow, 'headline-row');
     setClass(letter, 'letter');
     setClass(headline, 'headline');
     setClass(audioplayer, 'audioPlayer');
@@ -66,10 +70,13 @@ for (let index = 0; index < subitems.length; index++) {
     setContent(letter, letterContent[index] ?? '');
     setContent(headline, headlineContent[index] ?? '');
     
-    // Append tags to subitem
-    appendChilds(subitems[index], letter);
-    appendChilds(subitems[index], headline);
-    appendChilds(subitems[index], audioplayer);
+    // Append letter, headline, and audioplayer to headline-row
+    appendChilds(headlineRow, letter);
+    appendChilds(headlineRow, headline);
+    appendChilds(headlineRow, audioplayer);
+    
+    // Append headline-row to subitem
+    appendChilds(subitems[index], headlineRow);
 
     // Create audio icons
     const audioIcons = {};
@@ -114,7 +121,7 @@ for (let index = 0; index < subitems.length; index++) {
         appendChilds(questionRow, numberParagraph);
 
         const textParagraph = createTag('p');
-        setClass(textParagraph, 'question-text');
+        setClass(textParagraph, 'text');
         const questionTextFragment = buildQuestionTextFragment(
             questionText,
             questionOptions[questionIndex] ?? []
@@ -128,7 +135,7 @@ for (let index = 0; index < subitems.length; index++) {
 
 /* EVENT LISTENER – track correct items for Exercise 1 */
 window.addEventListener('load', () => {
-    const button = document.getElementById('check-answers');
+    const button = document.getElementById('check-answers-button');
     if (!button || !window.studentChoices || !window.expectedAnswers) return;
 
         button.addEventListener('click', () => {

@@ -31,23 +31,23 @@ const exerciseFourData = {
 };
 
 Object.keys(exerciseFourData).forEach((key) => {
+    // Variables
     const { sentence, options } = exerciseFourData[key];
-
     const sentenceRow = createTag('div');
-    setClass(sentenceRow, 'multiple-choice-row');
-
     const numberTag = createTag('p');
+    const sentenceTag = createTag('p');
+    const sentenceFragment = buildMultipleChoiceSentenceFragment( sentence, options );
+
+    // Classes
+    setClass(sentenceRow, 'sentence-row');
     setClass(numberTag, 'number');
+    setClass(sentenceTag, 'sentence');
+
+    // Content
     setContent(numberTag, `${key}.`);
 
-    const sentenceTag = createTag('p');
-    setClass(sentenceTag, 'sentence');
-    const sentenceFragment = buildMultipleChoiceSentenceFragment(
-        sentence,
-        options
-    );
+    // Appending
     sentenceTag.appendChild(sentenceFragment);
-
     appendChilds(sentenceRow, numberTag);
     appendChilds(sentenceRow, sentenceTag);
     appendChilds(contentFour, sentenceRow);
@@ -97,7 +97,7 @@ function createMultipleChoiceDropdown (options = [], capitalise = false) {
 
 /* EVENT LISTENER – track answers for Exercise 4 */
 window.addEventListener('load', () => {
-    const button = document.getElementById('check-answers');
+    const button = document.getElementById('check-answers-button');
     if (!button || !window.studentChoices || !window.expectedAnswers) return;
 
     button.addEventListener('click', () => {

@@ -31,14 +31,14 @@ conversationData.forEach((lines, exerciseIndex) => {
 
     lines.forEach((line, lineIndex) => {
         const conversationRow = createTag('div');
-        setClass(conversationRow, 'conversation-row');
-
         const speakerLabel = createTag('p');
-        setClass(speakerLabel, 'speaker');
-        setContent(speakerLabel, lineIndex === 0 ? 'Jack:' : 'Isabel:');
-
         const speakerLine = createTag('p');
+        
+        setClass(conversationRow, 'conversation-row');
+        setClass(speakerLabel, 'speaker');
         setClass(speakerLine, 'line');
+        
+        setContent(speakerLabel, lineIndex === 0 ? 'Jack:' : 'Isabel:');
         const dropdownOptions = line.includes('_') ? exerciseTwoDropdownOptions : [];
 
         const lineFragment = buildConversationTextFragment(
@@ -99,7 +99,7 @@ function createConversationDropdown (options = [], capitalise = false) {
 // When the "Check answers" button is clicked, record which dropdowns were
 // correct or incorrect for Exercise 2.
 window.addEventListener('load', () => {
-    const button = document.getElementById('check-answers');
+    const button = document.getElementById('check-answers-button');
     if (!button || !window.studentChoices || !window.expectedAnswers) return;
 
     button.addEventListener('click', () => {

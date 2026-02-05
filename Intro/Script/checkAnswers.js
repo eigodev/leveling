@@ -15,13 +15,14 @@ const expectedAnswers = {
     exercise3: {
         // Matching subjects to their correct possessive adjectives
         matches: {
-            // Right-column is scrambled; these IDs point to the correct words:
-            subjectOne: 'possFour',  // I  -> my
-            subjectTwo: 'possOne',   // you -> your
-            subjectThree: 'possSix', // he -> his
-            subjectFour: 'possTwo',  // she -> her
-            subjectFive: 'possFive', // we -> our
-            subjectSix: 'possThree', // they -> their
+            // Each subject ID maps to the correct possessive ID
+            // (see `exerciseThreePossessives` in `exercise3.js`)
+            subjectOne: 'possOne',    // I    -> my
+            subjectTwo: 'possTwo',    // you  -> your
+            subjectThree: 'possThree',// he   -> his
+            subjectFour: 'possFour',  // she  -> her
+            subjectFive: 'possFive',  // we   -> our
+            subjectSix: 'possSix',    // they -> their
             subjectSeven: 'possSeven' // Mary -> Mary's
         }
     },
@@ -43,13 +44,13 @@ const expectedAnswers = {
 
     exercise7: {
         // Expected typed questions (without final punctuation)
-        sentences: ['How are you','How old are you','What do you do','Where do you work'],
+        sentences: ['How are you?','How old are you?','What do you do?','Where do you work?'],
         // Acceptable variants for each question (all normalised before checking)
         sentenceVariants: [
-            [ 'How are you', 'How are you doing', "How's it going" ], 
-            [ 'How old are you', "What's your age" ], 
-            [ 'What do you do', 'What do you do for a living' ], 
-            [ 'Where do you work' ]
+            [ 'How are you?', 'How are you doing?', "How's it going?" ], 
+            [ 'How old are you?', "What's your age?" ], 
+            [ 'What do you do?', 'What do you do for a living?' ], 
+            [ 'Where do you work?' ]
         ]
     },
 
@@ -114,24 +115,14 @@ window.expectedAnswers = expectedAnswers;
 
 /* Button & checking logic */
 
-const buttonAnswersContainer = document.getElementById('button-answers');
+const buttonAnswersContainer = document.getElementById('check-answers');
 
 if (buttonAnswersContainer) {
     const checkButton = document.createElement('button');
-    setAttributeID(checkButton, 'id', 'check-answers');
+    setAttributeID(checkButton, 'id', 'check-answers-button');
     checkButton.textContent = 'Check answers';
 
-    const downloadButton = document.createElement('button');
-    setAttributeID(downloadButton, 'id', 'download-report');
-    downloadButton.setAttribute('aria-label', 'Download report as PDF');
-    downloadButton.innerHTML = [
-        '<svg width="20" height="20" viewBox="0 0 25 25" aria-hidden="true" focusable="false">',
-        '<path fill="currentColor" d="M5 20h14v-2h-2v-2h4v6H3v-6h4v2H5v2zm7-2-6-6h4V4h4v8h4l-6 6z"/>',
-        '</svg>'
-    ].join('');
-
     buttonAnswersContainer.appendChild(checkButton);
-    buttonAnswersContainer.appendChild(downloadButton);
 
     checkButton.addEventListener('click', () => {
         const results = [
@@ -150,10 +141,6 @@ if (buttonAnswersContainer) {
         if (typeof window.calculateIntroOverallScore === 'function') {
             window.calculateIntroOverallScore(results);
         }
-    });
-
-    downloadButton.addEventListener('click', () => {
-        exportStudentReportPdf();
     });
 }
 
@@ -859,13 +846,13 @@ function exportStudentReportPdf () {
                 detailIndices: [1],
                 itemLabel: '2',
                 review: 'Unit 4, Ex.9',
-                area: 'Same'
+                area: 'Grammar: Present continuous statements'
             },
             {
                 detailIndices: [2, 3, 4],
                 itemLabel: '3',
                 review: 'Unit 4, Ex.9',
-                area: 'Same'
+                area: 'Grammar: Present continuous statements'
             }
         ],
         // Exercise 7 – 4 items
@@ -892,7 +879,7 @@ function exportStudentReportPdf () {
                 detailIndex: 3,
                 itemLabel: '4',
                 review: 'Unit 8, Ex.4',
-                area: 'Same'
+                area: 'Grammar: Simple present Wh-questions'
             }
         ],
         // Exercise 8 – 5 items

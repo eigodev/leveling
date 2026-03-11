@@ -32,25 +32,43 @@ const capitalizedOptions = exerciseTwoDropdownOptions.map(
 );
 
 conversationData.forEach((lines, exerciseIndex) => {
+    /* Create the tags */
     const exerciseWrapper = createTag('div');
-    setClass(exerciseWrapper, 'conversation');
-    appendChilds(contentTwo, exerciseWrapper);
-
     const exerciseNumber = createTag('p');
+    const lettersWrapper = createTag('div');
+    const sentencesWrapper = createTag('div');
+    
+    /* Set the classes */
+    setClass(exerciseWrapper, 'row');
     setClass(exerciseNumber, 'number');
+    setClass(lettersWrapper, 'letters');
+    setClass(sentencesWrapper, 'sentences');
+    
+    /* Set the content */
     setContent(exerciseNumber, `${exerciseIndex + 1}.`);
+    
+    /* Append the childs */
+    appendChilds(contentTwo, exerciseWrapper);
     appendChilds(exerciseWrapper, exerciseNumber);
+    appendChilds(exerciseWrapper, lettersWrapper);
+    appendChilds(exerciseWrapper, sentencesWrapper);
 
     lines.forEach((line, lineIndex) => {
-        const conversationRow = createTag('div');
-        setClass(conversationRow, 'conversation-row');
-
+        /* Create the tags */
         const speakerLabel = createTag('p');
-        setClass(speakerLabel, 'letter');
-        setContent(speakerLabel, lineIndex === 0 ? 'a.' : 'b.');
-
         const speakerLine = createTag('p');
-        setClass(speakerLine, 'text');
+        
+        /* Set the classes */
+        setClass(speakerLabel, 'letter');
+        setClass(speakerLine, lineIndex === 0 ? 'textA' : 'textB');
+        
+        /* Set the content */
+        setContent(speakerLabel, lineIndex === 0 ? 'A.' : 'B.');
+        
+        /* Append the childs */
+        appendChilds(lettersWrapper, speakerLabel);
+        appendChilds(sentencesWrapper, speakerLine);
+
         const needsCapitalization = exerciseIndex === 2 && lineIndex === 0;
         const dropdownOptions = line.includes('_')
             ? (needsCapitalization ? capitalizedOptions : exerciseTwoDropdownOptions)
@@ -61,10 +79,7 @@ conversationData.forEach((lines, exerciseIndex) => {
             dropdownOptions
         );
         speakerLine.appendChild(lineFragment);
-
-        appendChilds(conversationRow, speakerLabel);
-        appendChilds(conversationRow, speakerLine);
-        appendChilds(exerciseWrapper, conversationRow);
+        appendChilds(sentencesWrapper, speakerLine);
     });
 });
 
@@ -111,7 +126,7 @@ function createConversationDropdown (options = []) {
 // When the "Check answers" button is clicked, record which dropdowns were
 // correct or incorrect for Exercise 2.
 window.addEventListener('load', () => {
-    const button = document.getElementById('check-answers');
+    const button = document.getElementById('check-answers-button');
     if (!button || !window.studentChoices || !window.expectedAnswers) return;
 
     button.addEventListener('click', () => {

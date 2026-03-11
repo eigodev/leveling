@@ -142,17 +142,17 @@
         if (typeof window.resetExerciseEightConnections === 'function') {
             window.resetExerciseEightConnections();
         } else if (
-            typeof connectionState !== 'undefined' &&
-            connectionState.questionConnections &&
-            connectionState.answerConnections
+            typeof connectionStateEight !== 'undefined' &&
+            connectionStateEight.questionConnections &&
+            connectionStateEight.answerConnections
         ) {
-            connectionState.questionConnections.forEach(({ line }) => {
+            connectionStateEight.questionConnections.forEach(({ line }) => {
                 if (line && typeof line.remove === 'function') {
                     line.remove();
                 }
             });
-            connectionState.questionConnections.clear();
-            connectionState.answerConnections.clear();
+            connectionStateEight.questionConnections.clear();
+            connectionStateEight.answerConnections.clear();
         }
     }
 

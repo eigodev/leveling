@@ -33,9 +33,6 @@ function appendChilds (parent, child){
 }
 
 /* Student tracking */
-// `choicesX` will usually store the current list of correct answers for that exercise
-// (e.g. ['in a gym', 'go jogging', ...]).
-// `choicesXHistory` can store richer objects with correct/total, percentage, etc.
 const studentChoices = {
     choicesOne: [],
     choicesOneHistory: [],

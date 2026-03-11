@@ -30,67 +30,55 @@ const exerciseSixData = {
     }
 };
 
-Object.keys(exerciseSixData).forEach((key) => {
-    const { sentence, options } = exerciseSixData[key];
-
+// Insert dropdowns for '_'
+Object.keys(exerciseSixData).forEach((key, index) => {
     const sentenceRow = createTag('div');
-    setClass(sentenceRow, 'multiple-choice-row');
-
     const numberTag = createTag('p');
-    setClass(numberTag, 'number');
-    setContent(numberTag, `${key}.`);
-
     const sentenceTag = createTag('p');
-    setClass(sentenceTag, 'sentence');
-    const sentenceFragment = buildMultipleChoiceSentenceFragment(sentence, options);
-    sentenceTag.appendChild(sentenceFragment);
 
+    setClass(sentenceRow, 'sentence-row');
+    setClass(numberTag, 'number');
+    setClass(sentenceTag, 'sentence');
+
+    setContent(numberTag, `${index + 1}.`);
+
+    // Create dropdown for the blank in the sentence
+    const sentenceStr = exerciseSixData[key].sentence;
+    const options = exerciseSixData[key].options;
+
+    const parts = sentenceStr.split('_');
+    for (let index = 0; index < parts.length; index++) {
+        if (parts[index]) {
+            const textNode = document.createTextNode(parts[index].trimStart());
+            appendChilds(sentenceTag, textNode);
+        }
+        // Insert dropdown after every '_' (except after last part)
+        if (index < parts.length - 1) {
+            const select = createTag('select');
+            setClass(select, 'text-dropdown');
+            const emptyOption = createTag('option');
+            emptyOption.value = '';
+            emptyOption.textContent = ' ';
+            appendChilds(select, emptyOption);
+
+            options.forEach(optionText => {
+                const option = createTag('option');
+                option.value = optionText;
+                option.textContent = optionText;
+                appendChilds(select, option);
+            });
+            appendChilds(sentenceTag, select);
+        }
+    }
     appendChilds(sentenceRow, numberTag);
     appendChilds(sentenceRow, sentenceTag);
     appendChilds(contentSix, sentenceRow);
 });
 
-function buildMultipleChoiceSentenceFragment (sentence, options = []) {
-    const fragment = document.createDocumentFragment();
-    const parts = sentence.split('_');
-
-    parts.forEach((part, partIndex) => {
-        if (part) {
-            fragment.appendChild(document.createTextNode(part));
-        }
-
-        if (partIndex !== parts.length - 1) {
-            fragment.appendChild(createMultipleChoiceDropdown(options));
-        }
-    });
-
-    return fragment;
-}
-
-function createMultipleChoiceDropdown (options = []) {
-    const select = createTag('select');
-    setClass(select, 'text-dropdown');
-
-    const placeholder = createTag('option');
-    placeholder.value = '';
-    placeholder.textContent = '';
-    placeholder.disabled = true;
-    placeholder.selected = true;
-    appendChilds(select, placeholder);
-
-    options.forEach((optionLabel) => {
-        const option = createTag('option');
-        option.value = optionLabel;
-        option.textContent = optionLabel;
-        appendChilds(select, option);
-    });
-
-    return select;
-}
 
 /* EVENT LISTENER – track answers for Exercise 6 */
 window.addEventListener('load', () => {
-    const button = document.getElementById('check-answers');
+    const button = document.getElementById('check-answers-button');
     if (!button || !window.studentChoices || !window.expectedAnswers) return;
 
     button.addEventListener('click', () => {

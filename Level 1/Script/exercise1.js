@@ -51,23 +51,30 @@ const audioIconBlueprint = [
 ];
 
 for (let index = 0; index < subitems.length; index++) {
+    // Create headline-row wrapper
+    const headlineRow = createTag('div');
+    setClass(headlineRow, 'headline-row');
+    
     // Create <p> called letter
     const letter = createTag('p');
     setClass(letter, 'letter');
     setContent(letter, letterContent[index] ?? '');
-    appendChilds(subitems[index], letter);
+    appendChilds(headlineRow, letter);
 
     // Create <p> called headline
     const headline = createTag('p');
     setClass(headline, 'headline');
     setContent(headline, headlineContent[index] ?? '');
-    appendChilds(subitems[index], headline);
+    appendChilds(headlineRow, headline);
 
     // Create <div> called audioplayer
     const audioplayer = createTag('div');
     setClass(audioplayer, 'audioplayer');
     setClass(audioplayer, 'audioPlayer'); // keep existing styles that target camelCase class
-    appendChilds(subitems[index], audioplayer);
+    appendChilds(headlineRow, audioplayer);
+    
+    // Append headline-row to subitem
+    appendChilds(subitems[index], headlineRow);
 
     const audioIcons = {};
     audioIconBlueprint.forEach((iconConfig) => {
@@ -109,7 +116,7 @@ for (let index = 0; index < subitems.length; index++) {
         appendChilds(questionRow, numberParagraph);
 
         const textParagraph = createTag('p');
-        setClass(textParagraph, 'question-text');
+        setClass(textParagraph, 'text');
         const questionTextFragment = buildQuestionTextFragment(
             questionText,
             questionOptions[questionIndex] ?? []
@@ -126,7 +133,7 @@ for (let index = 0; index < subitems.length; index++) {
 // we clear the console, calculate how many items are correct in Exercise 1,
 // and store that result in `studentChoices.choicesOne` plus rich history.
 window.addEventListener('load', () => {
-    const button = document.getElementById('check-answers');
+    const button = document.getElementById('check-answers-button');
     if (!button || !window.studentChoices || !window.expectedAnswers) return;
 
     button.addEventListener('click', () => {
@@ -370,36 +377,10 @@ function setupAudioControls ({
         });
     };
 
-    // Initialize audio time to segmentStart when metadata loads
-    const initializeAudioTime = () => {
-        const setInitialTime = () => {
-            try {
-                setAudioTime(segmentStart);
-            } catch (error) {
-                // If setting time fails (e.g., not seekable yet), try again on next event
-                console.warn('Failed to set initial audio time, will retry:', error);
-            }
-        };
-
-        if (audioElement.readyState >= 1) {
-            // Metadata already loaded, set time immediately
-            setInitialTime();
-        } else {
-            // Wait for metadata to load, then set time
-            const onMetadataLoaded = () => {
-                setInitialTime();
-            };
-            audioElement.addEventListener('loadedmetadata', onMetadataLoaded, {once: true});
-            // Also try on canplay event as a fallback
-            audioElement.addEventListener('canplay', setInitialTime, {once: true});
-        }
-    };
-
     const startPlayback = async () => {
         stopOtherControllers(controller);
         await waitforSeekable();
-        // Explicitly set time to segmentStart before playing to ensure it starts at the correct position
-        setAudioTime(segmentStart);
+        ensureWithinSegment();
         audioElement.play()
             .then(() => {
                 showPause();
@@ -420,9 +401,6 @@ function setupAudioControls ({
         const targetTime = audioElement.currentTime + deltaSeconds;
         setAudioTime(targetTime);
     };
-
-    // Initialize the audio time to segmentStart when controls are set up
-    initializeAudioTime();
 
     playIcon.addEventListener('click', startPlayback);
     pauseIcon.addEventListener('click', pausePlayback);

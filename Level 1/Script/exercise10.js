@@ -14,11 +14,11 @@ function showExerciseTenWarning () {
     if (exerciseTenWarningShown) return;
     exerciseTenWarningShown = true;
 
-    const popupInfo = document.getElementById('popup-info');
+    const popupInfo = document.getElementById('popup-alert');
     if (!popupInfo) {
         // Fallback if the styled popup container is not available
         window.alert(
-            'Antes de clicar em "Check Answers", verifique se você digitou corretamente as sentenças.'
+            'Antes de clicar em "Check Answers", verifique se você digitou corretamente as sentenças. Não esqueça de usar pontuação!'
         );
         return;
     }
@@ -26,12 +26,13 @@ function showExerciseTenWarning () {
     popupInfo.innerHTML = '';
 
     const message = document.createElement('p');
+    message.classList.add('alert-message');
     message.textContent =
         'Antes de clicar em "Check Answers", verifique se você digitou corretamente as sentenças.';
 
     const okButton = document.createElement('button');
     okButton.textContent = 'OK';
-    okButton.classList.add('student-info-button');
+    okButton.classList.add('alert-button');
     okButton.addEventListener('click', () => {
         popupInfo.style.display = 'none';
     });
@@ -61,50 +62,41 @@ const exerciseTenItems = [
 ];
 
 exerciseTenItems.forEach(({ number, words }) => {
-    const sentenceWrapper = createTag('div');
-    setClass(sentenceWrapper, 'sentence-construction');
-    appendChilds(contentTen, sentenceWrapper);
-
-    const scrambledRow = createTag('div');
-    setClass(scrambledRow, 'sentence-construction-row');
-
+    // Creating the html tags
+    const sentenceRow = createTag('div');
     const numberTag = createTag('p');
-    setClass(numberTag, 'number');
-    setContent(numberTag, `${number}.`);
-
+    const sentenceContainer = createTag('div');
     const scrambledText = createTag('p');
-    setClass(scrambledText, 'scrambled');
-    setContent(scrambledText, words);
-
-    appendChilds(scrambledRow, numberTag);
-    appendChilds(scrambledRow, scrambledText);
-    appendChilds(sentenceWrapper, scrambledRow);
-
-    const answerRow = createTag('div');
-    setClass(answerRow, 'sentence-answer-row');
-
-    const indent = createTag('div');
-    setClass(indent, 'sentence-indent');
-
     const answerInput = createTag('input');
+    
+    setClass(sentenceRow, 'sentence-row');
+    setClass(numberTag, 'number');
+    setClass(sentenceContainer, 'sentence');
+    setClass(scrambledText, 'sentence');
     setClass(answerInput, 'sentence-input');
+    
+    setContent(numberTag, `${number}.`);
+    setContent(scrambledText, words);
+    
     answerInput.type = 'text';
-
-    // Show the warning only when the student first clicks / focuses the
-    // very first input in Exercise 10.
+    
+    // Show the warning only when the student first click;
     if (number === 1) {
         answerInput.addEventListener('focus', showExerciseTenWarning);
         answerInput.addEventListener('click', showExerciseTenWarning);
     }
-
-    appendChilds(answerRow, indent);
-    appendChilds(answerRow, answerInput);
-    appendChilds(sentenceWrapper, answerRow);
+    
+    appendChilds(sentenceContainer, scrambledText);
+    appendChilds(sentenceContainer, answerInput);
+    
+    appendChilds(contentTen, sentenceRow);
+    appendChilds(sentenceRow, numberTag);
+    appendChilds(sentenceRow, sentenceContainer);
 });
 
 /* EVENT LISTENER – track answers for Exercise 10 (sentence writing) */
 window.addEventListener('load', () => {
-    const button = document.getElementById('check-answers');
+    const button = document.getElementById('check-answers-button');
     if (!button || !window.studentChoices || !window.expectedAnswers) return;
 
     const normalise =

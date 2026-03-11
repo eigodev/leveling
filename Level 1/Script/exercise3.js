@@ -7,16 +7,16 @@ const contentThree = createTag('div');
 setClass(contentThree, 'content');
 appendChilds(exerciseThreeContainer, contentThree);
 
-const storyData = [
-    'I live in a nice neighborhood in a big city...',
-    '...There are _ nice stores and restaurants near my house...',
-    '...It’s busy during the day, but there isn’t _ traffic in the evening or at night...',
-    '...There is _ pollution, but _ thinks it’s going to be a big problem...',
-    '...There are many programs to help keep the city clean...',
-    '...I think that _ the people who live in my neighborhood like it.'
+const storyDataThree = [
+    'I live in a nice neighborhood in a big city.',
+    'There are _ nice stores and restaurants near my house',
+    'It\'s busy during the day, but there isn\'t _ traffic in the evening or at night.',
+    'There is _ pollution, but _ thinks it\'s going to be a big problem.',
+    'There are many programs to help keep the city clean.',
+    'I think that _ the people who live in my neighborhood like it.'
 ];
 
-const storyDropdownOptions = [
+const storyOptionsThree = [
     'a little',
     'few',
     'many',
@@ -25,60 +25,108 @@ const storyDropdownOptions = [
     'no one'
 ];
 
-storyData.forEach((sentence) => {
-    const storyLine = createTag('p');
+/* Create the notepad */
+/* Create TAGS */
+const notepadThree = createTag('div');
+const notepadHeaderThree = createTag('p');
+const notepadBodyThree = createTag('div');
 
-    const sentenceFragment = buildStorySentenceFragment(
-        sentence,
-        sentence.includes('_') ? storyDropdownOptions : []
-    );
+/* Set Classnames */
+setClass(notepadThree, 'notepad');
+setClass(notepadHeaderThree, 'notepad-header');
+setClass(notepadBodyThree, 'notepad-body');
 
-    storyLine.appendChild(sentenceFragment);
-    appendChilds(contentThree, storyLine);
+/* Set Content */
+setContent(notepadHeaderThree, 'My City');
+
+/* Append TAGS */
+appendChilds(notepadThree, notepadHeaderThree);
+appendChilds(notepadThree, notepadBodyThree);
+appendChilds(contentThree, notepadThree);
+
+let dropdownIndexThree = 0;
+const dropdownsThree = [];
+
+storyDataThree.forEach((sentence) => {
+    const sentenceTag = createTag('p');
+    setClass(sentenceTag, 'sentence');
+    
+    // Replace every "_" with a select dropdown
+    let parts = sentence.split('_');
+    for (let index = 0; index < parts.length; index++) {
+        // Add preceding HTML/text part
+        if (parts[index]) {
+            // split may return '' if '_' is at start; skip empty
+            const textNode = document.createTextNode(parts[index].trimStart());
+            appendChilds(sentenceTag, textNode);
+        }
+        // If not the last part, need a dropdown here
+        if (index < parts.length - 1) {
+            const select = createTag('select');
+            setClass(select, 'text-dropdown');
+            // Add empty option
+            const emptyOption = createTag('option');
+            emptyOption.value = '';
+            emptyOption.textContent = ' ';
+            appendChilds(select, emptyOption);
+
+            // Add all available options
+            storyOptionsThree.forEach(optionText => {
+                const option = createTag('option');
+                option.value = optionText;
+                option.textContent = optionText;
+                appendChilds(select, option);
+            });
+
+            appendChilds(sentenceTag, select);
+            dropdownsThree.push(select);
+            dropdownIndexThree++;
+        }
+    }
+    appendChilds(notepadBodyThree, sentenceTag);
 });
 
-function buildStorySentenceFragment (sentence, dropdownOptions = []) {
-    const fragment = document.createDocumentFragment();
-    const parts = sentence.split('_');
+// Core logic: prevent choosing the same answer in more than one dropdown
+function updateDropdownOptionsThree(triggeredSelect = null) {
+    // Gather the current values (skip empty)
+    const usedValues = dropdownsThree.map(sel => sel.value).filter(v => v);
 
-    parts.forEach((part, partIndex) => {
-        if (part) {
-            fragment.appendChild(document.createTextNode(part));
-        }
+    dropdownsThree.forEach(select => {
+        // Save the current value of this dropdown so we don't accidentally disable its own option
+        const currentValue = select.value;
 
-        if (partIndex !== parts.length - 1) {
-            fragment.appendChild(createStoryDropdown(dropdownOptions));
-        }
+        Array.from(select.options).forEach((opt) => {
+            // Always keep the empty option enabled
+            if (opt.value === '') {
+                opt.disabled = false;
+                return;
+            }
+            // Disable if this option is used in any other select (not itself)
+            if (usedValues.includes(opt.value) && opt.value !== currentValue) {
+                opt.disabled = true;
+                // If trigger causes user to lose their selection, reset to ''
+                if (select === triggeredSelect && opt.value === currentValue) {
+                    select.value = '';
+                }
+            } else {
+                opt.disabled = false;
+            }
+        });
     });
-
-    return fragment;
 }
 
-function createStoryDropdown (options = []) {
-    const select = createTag('select');
-    setClass(select, 'text-dropdown');
-
-    const placeholder = createTag('option');
-    placeholder.value = '';
-    placeholder.textContent = '';
-    placeholder.disabled = true;
-    placeholder.selected = true;
-    appendChilds(select, placeholder);
-
-    const availableOptions = options.length ? options : ['N/A'];
-    availableOptions.forEach((optionLabel) => {
-        const option = createTag('option');
-        option.value = optionLabel;
-        option.textContent = optionLabel;
-        appendChilds(select, option);
+// Attach change listeners to all dropdowns
+dropdownsThree.forEach(select => {
+    select.addEventListener('change', function() {
+        updateDropdownOptionsThree(this);
     });
-
-    return select;
-}
+});
+// On first render, nothing is chosen but just in case, call once
+updateDropdownOptionsThree();
 
 /* EVENT LISTENER – track answers for Exercise 3 */
 window.addEventListener('load', () => {
-    const button = document.getElementById('check-answers');
+    const button = document.getElementById('check-answers-button');
     if (!button || !window.studentChoices || !window.expectedAnswers) return;
 
     button.addEventListener('click', () => {

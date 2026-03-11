@@ -18,8 +18,36 @@ const expectedAnswers = {
     },
 
     exercise4: {
-        // True / False for each prompt (1–4)
-        dropdowns: ['True', 'False', 'False', 'False']
+        // Brenda's Composition (notepad) + True/False section, in DOM order
+        dropdowns: [
+            'are',
+            'have',
+            'works',
+            'got',
+            'moved',
+            'is',
+            'am',
+            "'s",
+            'lives',
+            "didn't",
+            'was',
+            "'s teaching",
+            'is',
+            'works',
+            'travels',
+            "'s",
+            'traveling',
+            'left',
+            'go',
+            'live',
+            'go',
+            'visit',
+            'spending',
+            'True',
+            'False',
+            'False',
+            'False'
+        ]
     },
 
     exercise5: {
@@ -47,7 +75,7 @@ const expectedAnswers = {
 
     exercise7: {
         // Blanks in the conversation, in the order underscores appear:
-        dropdowns: ['did', 'do', 'were', 'was', 'went', 'did', 'have', 'did']
+        dropdowns: ['did', 'do', 'were', 'was', 'went', 'did', 'have', 'did', 'love']
     },
 
     exercise8: {
@@ -63,7 +91,7 @@ const expectedAnswers = {
     },
 
     exercise9: {
-        // Blanks in items 1–6, B lines only
+        // Blanks: item 0 B, 1 B, 2 B, 3 A, 4 B, 5 B (DOM order)
         dropdowns: [
             'the gold ones',
             'on',
@@ -90,24 +118,14 @@ window.expectedAnswers = expectedAnswers;
 
 /* Button & checking logic */
 
-const buttonAnswersContainer = document.getElementById('button-answers');
+const buttonAnswersContainer = document.getElementById('check-answers');
 
 if (buttonAnswersContainer) {
     const checkButton = document.createElement('button');
-    setAttributeID(checkButton, 'id', 'check-answers');
+    setAttributeID(checkButton, 'id', 'check-answers-button');
     checkButton.textContent = 'Check answers';
 
-    const downloadButton = document.createElement('button');
-    setAttributeID(downloadButton, 'id', 'download-report');
-    downloadButton.setAttribute('aria-label', 'Download report as PDF');
-    downloadButton.innerHTML = [
-        '<svg width="20" height="20" viewBox="0 0 25 25" aria-hidden="true" focusable="false">',
-        '<path fill="currentColor" d="M5 20h14v-2h-2v-2h4v6H3v-6h4v2H5v2zm7-2-6-6h4V4h4v8h4l-6 6z"/>',
-        '</svg>'
-    ].join('');
-
     buttonAnswersContainer.appendChild(checkButton);
-    buttonAnswersContainer.appendChild(downloadButton);
 
     checkButton.addEventListener('click', () => {
         const results = [
@@ -123,41 +141,9 @@ if (buttonAnswersContainer) {
             checkExercise10()
         ];
 
-        const totalCorrect = results.reduce(
-            (sum, result) => sum + (result?.correct ?? 0),
-            0
-        );
-        const totalQuestions = results.reduce(
-            (sum, result) => sum + (result?.total ?? 0),
-            0
-        );
-
-        const percentage =
-            totalQuestions > 0
-                ? Math.round((totalCorrect / totalQuestions) * 100)
-                : 0;
-
-        const message = `You've scored ${totalCorrect} of ${totalQuestions} correct. Your rating is ${percentage}%.`;
-        const passed = percentage >= 80;
-
-        if (window.studentChoices) {
-            if (!Array.isArray(window.studentChoices.overallHistory)) {
-                window.studentChoices.overallHistory = [];
-            }
-            window.studentChoices.overallHistory.push({
-                timestamp: new Date().toISOString(),
-                totalCorrect,
-                totalQuestions,
-                percentage,
-                passed
-            });
+        if (typeof window.calculateIntroOverallScore === 'function') {
+            window.calculateIntroOverallScore(results);
         }
-
-        showResultPopup(message, passed);
-    });
-
-    downloadButton.addEventListener('click', () => {
-        exportStudentReportPdf();
     });
 }
 
@@ -186,7 +172,8 @@ function checkExercise3 () {
 }
 
 function checkExercise4 () {
-    const values = getSelectedTexts('#exercise-Four select.text-dropdown');
+    // Notepad dropdowns first, then True/False (same order as DOM)
+    const values = getSelectedTexts('#exercise-Four select');
     const expected = expectedAnswers.exercise4.dropdowns;
     return scoreDropdownExercise(values, expected);
 }
@@ -210,14 +197,14 @@ function checkExercise7 () {
 }
 
 function checkExercise8 () {
-    if (typeof connectionState === 'undefined') {
+    if (typeof connectionStateEight === 'undefined') {
         return { correct: 0, total: 0 };
     }
 
     const expected = expectedAnswers.exercise8.matches;
     const actual = {};
 
-    connectionState.questionConnections.forEach(({ answerId }, questionId) => {
+    connectionStateEight.questionConnections.forEach(({ answerId }, questionId) => {
         actual[questionId] = answerId;
     });
 
@@ -287,79 +274,6 @@ function normaliseSentence (sentence = '') {
 function arraysEqual (a = [], b = []) {
     if (a.length !== b.length) return false;
     return a.every((value, index) => value === b[index]);
-}
-
-function showResultPopup (message, success) {
-    const popup = document.getElementById('popup');
-    if (!popup) {
-        // Fallback if popup container is missing
-        window.alert(message);
-        return;
-    }
-
-    popup.innerHTML = '';
-
-    const close = document.createElement('span');
-    close.textContent = '×';
-    close.classList.add('popup-close');
-    close.addEventListener('click', () => {
-        popup.style.display = 'none';
-        resetAllExercises();
-    });
-
-    const title = document.createElement('h1');
-    title.textContent = success
-        ? 'You can move on to the next level!'
-        : 'You should stay in this level for now.';
-
-    const scoreText = document.createElement('p');
-    scoreText.id = 'score';
-    scoreText.textContent = message;
-
-    popup.appendChild(close);
-    popup.appendChild(title);
-    popup.appendChild(scoreText);
-
-    popup.style.display = 'flex';
-}
-
-function resetAllExercises () {
-    // Reset all dropdowns to their placeholder option
-    const allSelects = document.querySelectorAll(
-        'select.question-dropdown, select.text-dropdown'
-    );
-    allSelects.forEach((select) => {
-        if (select.options && select.options.length > 0) {
-            select.selectedIndex = 0;
-        } else {
-            select.value = '';
-        }
-    });
-
-    // Clear typed answers in Exercise 10
-    const sentenceInputs = document.querySelectorAll(
-        '#exercise-Ten input.sentence-input'
-    );
-    sentenceInputs.forEach((input) => {
-        input.value = '';
-    });
-
-    // Clear connections in Exercise 8 (matching)
-    if (typeof window.resetExerciseEightConnections === 'function') {
-        window.resetExerciseEightConnections();
-    } else if (
-        typeof connectionState !== 'undefined' &&
-        connectionState.questionConnections &&
-        connectionState.answerConnections
-    ) {
-        connectionState.questionConnections.forEach(({ line }) => {
-            if (line && typeof line.remove === 'function') {
-                line.remove();
-            }
-        });
-        connectionState.questionConnections.clear();
-        connectionState.answerConnections.clear();
-    }
 }
 
 function exportStudentReportPdf () {
@@ -715,38 +629,35 @@ function exportStudentReportPdf () {
                 area: 'Grammar: Quantifiers'
             }
         ],
-        // Exercise 4 – 5 items
+        // Exercise 4 – 23 notepad blanks + 4 True/False (areas tested per notepad blank)
         Four: [
-            {
-                detailIndex: 0,
-                itemLabel: '1',
-                review: 'Unit 5,',
-                area: 'Reading: Topic on family; true/false comprehension'
-            },
-            {
-                detailIndex: 1,
-                itemLabel: '2',
-                review: 'Unit 5',
-                area: 'Reading: Topic on family; true/false comprehension'
-            },
-            {
-                detailIndex: 2,
-                itemLabel: '3',
-                review: 'Unit 5',
-                area: 'Reading: Topic on family; true/false comprehension'
-            },
-            {
-                detailIndex: 3,
-                itemLabel: '4',
-                review: 'Unit 5',
-                area: 'Reading: Topic on family; true/false comprehension'
-            },
-            {
-                detailIndex: 4,
-                itemLabel: '5',
-                review: 'Unit 5',
-                area: 'Reading: Topic on family; true/false comprehension'
-            }
+            { detailIndex: 0, itemLabel: '1', review: 'Unit 5', area: 'verb BE (present)' },
+            { detailIndex: 1, itemLabel: '2', review: 'Unit 5', area: 'simple present irregular verbs' },
+            { detailIndex: 2, itemLabel: '3', review: 'Unit 5', area: 'simple present (3rd person)' },
+            { detailIndex: 3, itemLabel: '4', review: 'Unit 5', area: 'simple past (irregular verbs)' },
+            { detailIndex: 4, itemLabel: '5', review: 'Unit 5', area: 'simple past' },
+            { detailIndex: 5, itemLabel: '6', review: 'Unit 5', area: 'verb BE (present)' },
+            { detailIndex: 6, itemLabel: '7', review: 'Unit 5', area: 'verb BE (present)' },
+            { detailIndex: 7, itemLabel: '8', review: 'Unit 5', area: 'verb BE (present)' },
+            { detailIndex: 8, itemLabel: '9', review: 'Unit 5', area: 'simple present (3rd person)' },
+            { detailIndex: 9, itemLabel: '10', review: 'Unit 5', area: 'simple past (negative)' },
+            { detailIndex: 10, itemLabel: '11', review: 'Unit 5', area: 'verb BE (past)' },
+            { detailIndex: 11, itemLabel: '12', review: 'Unit 5', area: 'Present Continuous' },
+            { detailIndex: 12, itemLabel: '13', review: 'Unit 5', area: 'verb BE (present)' },
+            { detailIndex: 13, itemLabel: '14', review: 'Unit 5', area: 'simple present (3rd person)' },
+            { detailIndex: 14, itemLabel: '15', review: 'Unit 5', area: 'simple present (3rd person)' },
+            { detailIndex: 15, itemLabel: '16', review: 'Unit 5', area: 'verb BE (present)' },
+            { detailIndex: 16, itemLabel: '17', review: 'Unit 5', area: 'Present Continuous' },
+            { detailIndex: 17, itemLabel: '18', review: 'Unit 5', area: 'simple past (irregular verbs)' },
+            { detailIndex: 18, itemLabel: '19', review: 'Unit 5', area: 'simple present (irregular verbs)' },
+            { detailIndex: 19, itemLabel: '20', review: 'Unit 5', area: 'simple present' },
+            { detailIndex: 20, itemLabel: '21', review: 'Unit 5', area: 'simple present (irregular verbs)' },
+            { detailIndex: 21, itemLabel: '22', review: 'Unit 5', area: 'simple present' },
+            { detailIndex: 22, itemLabel: '23', review: 'Unit 5', area: 'enjoy + verb(ing)' },
+            { detailIndex: 23, itemLabel: '1', review: 'Unit 5', area: 'Reading: True/False comprehension' },
+            { detailIndex: 24, itemLabel: '2', review: 'Unit 5', area: 'Reading: True/False comprehension' },
+            { detailIndex: 25, itemLabel: '3', review: 'Unit 5', area: 'Reading: True/False comprehension' },
+            { detailIndex: 26, itemLabel: '4', review: 'Unit 5', area: 'Reading: True/False comprehension' }
         ],
         // Exercise 5 – 6 items
         Five: [
@@ -820,7 +731,7 @@ function exportStudentReportPdf () {
                 area: 'Vocabulary: Sports and fitness'
             }
         ],
-        // Exercise 7 – 8 items
+        // Exercise 7 – 9 items (love has the same tested area as have)
         Seven: [
             {
                 detailIndex: 0,
@@ -867,6 +778,12 @@ function exportStudentReportPdf () {
             {
                 detailIndex: 7,
                 itemLabel: '8',
+                review: 'Unit 7, Ex.3',
+                area: 'Same'
+            },
+            {
+                detailIndex: 8,
+                itemLabel: '9',
                 review: 'Unit 7, Ex.3',
                 area: 'Same'
             }

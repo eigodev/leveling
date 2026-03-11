@@ -11,115 +11,107 @@ const exerciseSevenConversation = {
     A: [
         'What _ you _ last weekend?',
         'Yes, I _. I _ to Puerto Rico with my cousins.',
-        'Yes, I _. I love to travel!'
+        'Yes, I _. I _ to travel!'
     ],
     B: [
         'Nothing special. What about you? _ you on vacation?',
         '_ you _ fun?'
     ]
 };
-const exerciseSevenDefaultDropdownOptions = ['do', 'does', 'did', 'was', 'were'];
-const exerciseSevenGoDropdownOptions = ['go', 'goes', 'went'];
-const exerciseSevenHaveDropdownOptions = ['have', 'has', 'had'];
-let exerciseSevenDropdownCursor = 0;
 
-const conversationSevenWrapper = createTag('div');
-setClass(conversationSevenWrapper, 'conversation');
-appendChilds(contentSeven, conversationSevenWrapper);
+const drodpdownOptions = [
+    ['do', 'does', 'did'],
+    ['do', 'does', 'did'],
+    ['am', 'is', 'are', 'was', 'were'],
+    ['am', 'is', 'are', 'was', 'were'],
+    ['go', 'goes', 'went'],
+    ['do', 'does', 'did'],
+    ['have', 'has', 'had'],
+    ['do', 'does', 'did'],
+    ['love', 'loves', 'loved']
+]
 
-// A: text 1, B: text 1, A: text 2, B: text 2, A: text 3
-const conversationSevenSequence = [
-    { speaker: 'A', index: 0 },
-    { speaker: 'B', index: 0 },
-    { speaker: 'A', index: 1 },
-    { speaker: 'B', index: 1 },
-    { speaker: 'A', index: 2 }
+// Conversation rows for exercise 7
+const conversationRows = [
+    { speaker: 'A', lineIndex: 0 },
+    { speaker: 'B', lineIndex: 0 },
+    { speaker: 'A', lineIndex: 1 },
+    { speaker: 'B', lineIndex: 1 },
+    { speaker: 'A', lineIndex: 2 }
 ];
 
-conversationSevenSequence.forEach(({ speaker, index }) => {
-    const conversationRow = createTag('div');
-    setClass(conversationRow, 'conversation-row');
+let dropdownGlobalIndex = 0; // Tracks which option set to use in drodpdownOptions
 
-    const letterTag = createTag('p');
-    setClass(letterTag, 'letter');
-    setContent(letterTag, `${speaker}.`);
+conversationRows.forEach(({ speaker, lineIndex }, rowIndex) => {
+    const sentenceRow = createTag('div');
+    const speakerTag = createTag('p');
+    const sentenceTag = createTag('p');
 
-    const textTag = createTag('p');
-    setClass(textTag, 'text');
-    const lineText = exerciseSevenConversation[speaker][index] ?? '';
+    // Setting the classes
+    setClass(sentenceRow, 'conversation-row');
+    setClass(speakerTag, 'letter');
+    setClass(sentenceTag, 'sentence');
 
-    const sentenceFragment = buildExerciseSevenSentenceFragment(lineText);
-    textTag.appendChild(sentenceFragment);
+    // Setting the content
+    setContent(speakerTag, speaker + ':');
 
-    appendChilds(conversationRow, letterTag);
-    appendChilds(conversationRow, textTag);
-    appendChilds(conversationSevenWrapper, conversationRow);
-});
-
-function buildExerciseSevenSentenceFragment (sentence) {
-    const fragment = document.createDocumentFragment();
-    const parts = sentence.split('_');
-
-    parts.forEach((part, partIndex) => {
-        if (part) {
-            fragment.appendChild(document.createTextNode(part));
-        }
-
-        if (partIndex !== parts.length - 1) {
-            exerciseSevenDropdownCursor++;
-
-            let dropdownOptions = exerciseSevenDefaultDropdownOptions;
-            if (exerciseSevenDropdownCursor === 5) {
-                dropdownOptions = exerciseSevenGoDropdownOptions;
-            } else if (exerciseSevenDropdownCursor === 7) {
-                dropdownOptions = exerciseSevenHaveDropdownOptions;
+    const line = exerciseSevenConversation[speaker][lineIndex];
+    let parts = line.split('_');
+    let prevChar = '.'; // Assume sentence start by default
+    for (let index = 0; index < parts.length; index++) {
+        if (parts[index]) {
+            const partTrimmed = parts[index].trimStart();
+            const textNode = document.createTextNode(partTrimmed);
+            appendChilds(sentenceTag, textNode);
+            // Get last non-space char for punctuation detection
+            let trimmed = partTrimmed.trimEnd();
+            if (trimmed.length > 0) {
+                prevChar = trimmed[trimmed.length - 1];
             }
-
-            const trimmedPart = part.trimEnd();
-            const lastChar = trimmedPart[trimmedPart.length - 1];
-            const isSentenceStart =
-                (!trimmedPart && partIndex === 0) ||
-                lastChar === '.' ||
-                lastChar === '?' ||
-                lastChar === '!';
-
-            fragment.appendChild(
-                createExerciseSevenDropdown(dropdownOptions, isSentenceStart)
-            );
         }
-    });
+        if (index < parts.length - 1) {
+            // Dropdown with options from drodpdownOptions, indexed globally per blank
+            const select = createTag('select');
+            setClass(select, 'text-dropdown');
 
-    return fragment;
-}
+            // Empty default option
+            const emptyOption = createTag('option');
+            emptyOption.value = '';
+            emptyOption.textContent = ' ';
+            appendChilds(select, emptyOption);
 
-function createExerciseSevenDropdown (options = [], capitalize = false) {
-    const select = createTag('select');
-    setClass(select, 'text-dropdown');
+            // Only two cases: capitalize if at start of sentence or after . ? !
+            const shouldCapitalize = (
+                (index === 0 && (!parts[0] || parts[0].trim().length === 0 || parts[0].trimStart().length === 0)) // dropdown is at start of sentence
+                || prevChar === '.'
+                || prevChar === '?'
+                || prevChar === '!'
+            );
 
-    const placeholder = createTag('option');
-    placeholder.value = '';
-    placeholder.textContent = '';
-    placeholder.disabled = true;
-    placeholder.selected = true;
-    appendChilds(select, placeholder);
+            // Add corresponding options based on dropdownGlobalIndex
+            const options = drodpdownOptions[dropdownGlobalIndex] || [];
+            options.forEach(optionText => {
+                const option = createTag('option');
+                option.value = optionText;
+                option.textContent = shouldCapitalize
+                    ? optionText.charAt(0).toUpperCase() + optionText.slice(1)
+                    : optionText;
+                appendChilds(select, option);
+            });
 
-    const availableOptions = options.length ? options : ['N/A'];
-    availableOptions.forEach((optionValue) => {
-        const label = capitalize
-            ? optionValue.charAt(0).toUpperCase() + optionValue.slice(1)
-            : optionValue;
-        const option = createTag('option');
-        option.value = optionValue;
-        option.textContent = label;
-        appendChilds(select, option);
-    });
+            appendChilds(sentenceTag, select);
+            dropdownGlobalIndex++;
+        }
+    }
 
-    return select;
-}
+    appendChilds(sentenceRow, speakerTag);
+    appendChilds(sentenceRow, sentenceTag);
+    appendChilds(contentSeven, sentenceRow);
+});
 
 /* EVENT LISTENER – track answers for Exercise 7 */
 window.addEventListener('load', () => {
-    const button = document.getElementById('check-answers');
+    const button = document.getElementById('check-answers-button');
     if (!button || !window.studentChoices || !window.expectedAnswers) return;
 
     button.addEventListener('click', () => {
@@ -129,10 +121,9 @@ window.addEventListener('load', () => {
         const wrongAnswersChosen = [];
         const details = [];
 
-        // Review map for Exercise 7 (8 blanks)
-        // Items 1 and 4–6 -> Unit 7 / Exercise 3
-        // Items 2 and 3     -> Unit 7 / Exercise 10
-        // Items 7 and 8     -> no specific mapping provided
+        // Review map for Exercise 7 (9 blanks)
+        // Items 1, 4–7 and 9 (have, love) -> Unit 7 / Exercise 3; love same tested area as have
+        // Items 2 and 3 -> Unit 7 / Exercise 10
         const reviewMap = [
             { unit: 7, exercise: 3 },  // 1
             { unit: 7, exercise: 10 }, // 2
@@ -140,8 +131,9 @@ window.addEventListener('load', () => {
             { unit: 7, exercise: 3 },  // 4
             { unit: 7, exercise: 3 },  // 5
             { unit: 7, exercise: 3 },  // 6
-            null,                      // 7
-            null                       // 8
+            { unit: 7, exercise: 3 },  // 7 (have)
+            { unit: 7, exercise: 3 },  // 8
+            { unit: 7, exercise: 3 }   // 9 (love – same area as have)
         ];
 
         const selects = document.querySelectorAll(

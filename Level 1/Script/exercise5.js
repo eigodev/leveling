@@ -8,19 +8,18 @@ setClass(contentFive, 'content');
 appendChilds(exerciseFiveContainer, contentFive);
 
 const storyDataFive = [
-    'I’d like to introduce you to some of the people here...',
-    '...First, this is Ms. Cartwright, our receptionist....',
-    '...Hmm. She _ time to talk with us right now, so let’s come back later...',
-    '...This is Joel. He _ here on Tuesdays and Thursdays...',
-    '...Right now he _ an office building for an important customer...',
-    '...And over here are Bill and Bryan....',
-    '...Usually they _ to the office on Tuesdays, ...',
-    '...but today they _ ready for a meeting this afternoon...',
-    '...I guess everyone else _ lunch now.',
+    'I’d like to introduce you to some of the people here.',
+    'First, this is Ms. Cartwright, our receptionist.',
+    'Hmm. She _ time to talk with us right now, so let’s come back later.',
+    'This is Joel. He _ here on Tuesdays and Thursdays.',
+    'Right now he _ an office building for an important customer.',
+    'And over here are Bill and Bryan.',
+    'Usually they _ to the office on Tuesdays, but today they _ ready for a meeting this afternoon.',
+    'I guess everyone else _ lunch now.',
     'Come on, I’ll show you where the cafeteria is.'
 ];
 
-const storyDropdownOptionsFive = [
+const storyOptionsFive = [
     ['has', 'have', "don't have", "doesn't have", "didn't have"],
     ['work', 'works', "don't work", "doesn't work", "didn't work"],
     ['design', 'designs', "'m designing", "'s designing", "'re designing", 'designed'],
@@ -29,68 +28,66 @@ const storyDropdownOptionsFive = [
     ['eat', 'eats', "'m eating", "'s eating", "'re eating", 'ate']
 ];
 
-let storyDropdownCursor = 0;
+/* Create the notepad */
+/* Create TAGS */
+const notepadFive = createTag('div');
+const notepadHeaderFive = createTag('p');
+const notepadBodyFive = createTag('div');
+
+/* Set Classnames */
+setClass(notepadFive, 'notepad');
+setClass(notepadHeaderFive, 'notepad-header');
+setClass(notepadBodyFive, 'notepad-body');
+
+/* Set Content */
+setContent(notepadHeaderFive, 'A tour in the office.');
+
+/* Append TAGS */
+appendChilds(contentFive, notepadFive);
+appendChilds(notepadFive, notepadHeaderFive);
+appendChilds(notepadFive, notepadBodyFive);
+
+let dropdownIndexFive = 0; // Track which dropdown we're filling;
+const dropdownsFive = []; // Store all dropdowns for this exercise;
 
 storyDataFive.forEach((sentence) => {
-    const storyLine = createTag('p');
-
-    const sentenceFragment = buildStorySentenceFragment(
-        sentence,
-        sentence.includes('_')
-            ? () => storyDropdownOptionsFive[storyDropdownCursor++] ?? []
-            : []
-    );
-
-    storyLine.appendChild(sentenceFragment);
-    appendChilds(contentFive, storyLine);
-});
-
-function buildStorySentenceFragment (sentence, dropdownOptions = []) {
-    const fragment = document.createDocumentFragment();
-    const parts = sentence.split('_');
-
-    parts.forEach((part, partIndex) => {
-        if (part) {
-            fragment.appendChild(document.createTextNode(part));
+    const sentenceTag = createTag('p');
+    setClass(sentenceTag, 'sentence');
+    
+    let parts = sentence.split('_')
+    for (let index = 0; index < parts.length; index++) {
+        if (parts[index]) {
+            const textNode = document.createTextNode(parts[index].trimStart());
+            appendChilds(sentenceTag, textNode)
         }
 
-        if (partIndex !== parts.length - 1) {
-            const options =
-                typeof dropdownOptions === 'function'
-                    ? dropdownOptions()
-                    : dropdownOptions;
-            fragment.appendChild(createStoryDropdown(options));
+        if (index < parts.length - 1) {
+            const select = createTag('select');
+            setClass(select, 'text-dropdown')
+
+            const emptyOption = createTag('option');
+            emptyOption.value = '';
+            emptyOption.textContent = ' ';
+            appendChilds(select, emptyOption);
+
+            storyOptionsFive[dropdownIndexFive].forEach(optionText => {
+                const option = createTag('option');
+                option.value = optionText;
+                option.textContent = optionText;
+                appendChilds(select, option);
+            });
+            
+            appendChilds(sentenceTag, select);
+            dropdownsFive.push(select);
+            dropdownIndexFive++;
         }
-    });
-
-    return fragment;
-}
-
-function createStoryDropdown (options = []) {
-    const select = createTag('select');
-    setClass(select, 'text-dropdown');
-
-    const placeholder = createTag('option');
-    placeholder.value = '';
-    placeholder.textContent = '';
-    placeholder.disabled = true;
-    placeholder.selected = true;
-    appendChilds(select, placeholder);
-
-    const availableOptions = options.length ? options : ['N/A'];
-    availableOptions.forEach((optionLabel) => {
-        const option = createTag('option');
-        option.value = optionLabel;
-        option.textContent = optionLabel;
-        appendChilds(select, option);
-    });
-
-    return select;
-}
+    }
+    appendChilds(notepadBodyFive, sentenceTag);
+})
 
 /* EVENT LISTENER – track answers for Exercise 5 */
 window.addEventListener('load', () => {
-    const button = document.getElementById('check-answers');
+    const button = document.getElementById('check-answers-button');
     if (!button || !window.studentChoices || !window.expectedAnswers) return;
 
     button.addEventListener('click', () => {

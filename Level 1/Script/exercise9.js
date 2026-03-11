@@ -7,136 +7,109 @@ const contentNine = createTag('div');
 setClass(contentNine, 'content');
 appendChilds(exerciseNineContainer, contentNine);
 
-const exerciseNineData = [
-    {
-        number: 1,
-        lines: {
-            A: 'I like those earrings.',
-            B: 'Do you mean _ ?'
-        },
-        options: ['that gold', 'those gold', 'the gold ones']
-    },
-    {
-        number: 2,
-        lines: {
-            A: 'Can you go to dinner with me tomorrow?',
-            B: "No, I'm sorry. I work _ Saturdays."
-        },
-        options: ['in', 'on', 'at']
-    },
-    {
-        number: 3,
-        lines: {
-            A: 'Which shirt do you prefer?',
-            B: "I prefer the blue one. It's _ the orange one."
-        },
-        options: ['the nice', 'nicer', 'nicer than']
-    },
-    {
-        number: 4,
-        lines: {
-            A: 'How _ do you go out to dinner?',
-            B: 'About once a month.'
-        },
-        options: ['long', 'well', 'often']
-    },
-    {
-        number: 5,
-        lines: {
-            A: 'Would you like to take a walk?',
-            B: 'Yes, _ .'
-        },
-        options: ['I do', "I'd like", "I'd love to"]
-    },
-    {
-        number: 6,
-        lines: {
-            A: "I'm looking for a drugstore.",
-            B: 'I think _ one on Main Street.'
-        },
-        options: ["it's", "that's", "there's"]
-    }
+// Data
+const firstRowNine = [
+    'I like those earrings.',
+    'Can you go to dinner with me tomorrow?',
+    'Which shirt do you prefer?',
+    'How _ do you go out to dinner?',
+    'Would you like to take a walk with me?',
+    'I\'m looking for a drugstore.'
 ];
 
-exerciseNineData.forEach(({ number, lines, options }) => {
-    const exerciseWrapper = createTag('div');
-    setClass(exerciseWrapper, 'conversation');
-    appendChilds(contentNine, exerciseWrapper);
+const secondRowNine = [
+    'Do you mean _?',
+    'No. I\'m sorry. I work _ Saturdays.',
+    'I prefer the blue one. It\'s _ the orange one.',
+    'About once a month.',
+    'Yes, _.',
+    'I think _ one on Main Street.'
+];
 
-    const exerciseNumber = createTag('p');
-    setClass(exerciseNumber, 'number');
-    setContent(exerciseNumber, `${number}.`);
-    appendChilds(exerciseWrapper, exerciseNumber);
+const dropdownOptionsNine = [
+    ['that gold', 'those gold', 'the gold ones'],
+    ['in', 'on', 'at'],
+    ['the nice', 'nicer', 'nicer than'],
+    ['long', 'well', 'often'],
+    ['I do', 'I\'d like', 'I\'d love to'],
+    ['it\'s', 'that\'s', 'there\'s']
+];
 
-    (['A', 'B']).forEach((speaker) => {
-        const conversationRow = createTag('div');
-        setClass(conversationRow, 'conversation-row');
-
-        const speakerLabel = createTag('p');
-        setClass(speakerLabel, 'letter');
-        setContent(speakerLabel, `${speaker.toLowerCase()}.`);
-
-        const speakerLine = createTag('p');
-        setClass(speakerLine, 'text');
-
-        const sentence = lines[speaker];
-        const dropdownOptions = sentence.includes('_') ? options : [];
-        const sentenceFragment = buildExerciseNineSentenceFragment(
-            sentence,
-            dropdownOptions
-        );
-        speakerLine.appendChild(sentenceFragment);
-
-        appendChilds(conversationRow, speakerLabel);
-        appendChilds(conversationRow, speakerLine);
-        appendChilds(exerciseWrapper, conversationRow);
-    });
-});
-
-function buildExerciseNineSentenceFragment (sentence, dropdownOptions = []) {
+function buildSentenceWithDropdowns (text, options) {
     const fragment = document.createDocumentFragment();
-    const parts = sentence.split('_');
+    const parts = text.split('_');
 
     parts.forEach((part, partIndex) => {
         if (part) {
             fragment.appendChild(document.createTextNode(part));
         }
+        if (partIndex !== parts.length - 1 && options && options.length) {
+            const select = createTag('select');
+            setClass(select, 'text-dropdown');
 
-        if (partIndex !== parts.length - 1) {
-            fragment.appendChild(
-                createExerciseNineDropdown(dropdownOptions)
-            );
+            const placeholder = createTag('option');
+            placeholder.value = '';
+            placeholder.textContent = ' ';
+            placeholder.disabled = true;
+            placeholder.selected = true;
+            appendChilds(select, placeholder);
+
+            options.forEach((optionValue) => {
+                const option = createTag('option');
+                option.value = optionValue;
+                option.textContent = optionValue;
+                appendChilds(select, option);
+            });
+            fragment.appendChild(select);
         }
     });
-
     return fragment;
 }
 
-function createExerciseNineDropdown (options = []) {
-    const select = createTag('select');
-    setClass(select, 'text-dropdown');
+// Build one item per pair: p.number, div.letters (A:, B:), div.sentences (sentence A, sentence B)
+for (let index = 0; index < 6; index++) {
+    const sentenceRow = createTag('div');
+    setClass(sentenceRow, 'sentence-row');
 
-    const placeholder = createTag('option');
-    placeholder.value = '';
-    placeholder.textContent = '';
-    placeholder.disabled = true;
-    placeholder.selected = true;
-    appendChilds(select, placeholder);
+    const numberTag = createTag('p');
+    setClass(numberTag, 'number');
+    setContent(numberTag, index + 1);
+    appendChilds(sentenceRow, numberTag);
 
-    const availableOptions = options.length ? options : ['N/A'];
-    availableOptions.forEach((optionLabel) => {
-        const option = createTag('option');
-        option.value = optionLabel;
-        option.textContent = optionLabel;
-        appendChilds(select, option);
+    const lettersDiv = createTag('div');
+    setClass(lettersDiv, 'letters');
+    ['A:', 'B:'].forEach((label) => {
+        const letterTag = createTag('p');
+        setClass(letterTag, 'letter');
+        setContent(letterTag, label);
+        appendChilds(lettersDiv, letterTag);
     });
+    appendChilds(sentenceRow, lettersDiv);
 
-    return select;
+    const sentencesDiv = createTag('div');
+    setClass(sentencesDiv, 'sentences');
+
+    const sentenceA = createTag('p');
+    setClass(sentenceA, 'sentence');
+    const optionsA = firstRowNine[index].includes('_') ? dropdownOptionsNine[index] : null;
+    sentenceA.appendChild(buildSentenceWithDropdowns(firstRowNine[index], optionsA));
+    appendChilds(sentencesDiv, sentenceA);
+
+    const sentenceB = createTag('p');
+    setClass(sentenceB, 'sentence');
+    const optionsB = secondRowNine[index].includes('_') ? dropdownOptionsNine[index] : null;
+    sentenceB.appendChild(buildSentenceWithDropdowns(secondRowNine[index], optionsB));
+    appendChilds(sentencesDiv, sentenceB);
+
+    appendChilds(sentenceRow, sentencesDiv);
+    appendChilds(contentNine, sentenceRow);
 }
+
+
 
 /* EVENT LISTENER – track answers for Exercise 9 */
 window.addEventListener('load', () => {
-    const button = document.getElementById('check-answers');
+    const button = document.getElementById('check-answers-button');
     if (!button || !window.studentChoices || !window.expectedAnswers) return;
 
     button.addEventListener('click', () => {
@@ -146,20 +119,14 @@ window.addEventListener('load', () => {
         const wrongAnswersChosen = [];
         const details = [];
 
-        // Review map for Exercise 9
-        // Item 1 -> Unit 3 / Exercise 3
-        // Item 2 -> Unit 2 / Exercise 9
-        // Item 3 -> Unit 3 / Exercise 10
-        // Item 4 -> Unit 6 / Exercise 11
-        // Item 5 -> Unit 4 / Exercise 9
-        // Item 6 -> Unit 8 / Exercise 3
+        // Review map for Exercise 9 (order matches DOM: item 0 B, 1 B, 2 B, 3 A, 4 B, 5 B)
         const reviewMap = [
-            { unit: 3, exercise: 3 },
-            { unit: 2, exercise: 9 },
-            { unit: 3, exercise: 10 },
-            { unit: 6, exercise: 11 },
-            { unit: 4, exercise: 9 },
-            { unit: 8, exercise: 3 }
+            { unit: 3, exercise: 3 },   /* the gold ones */
+            { unit: 2, exercise: 9 },   /* on */
+            { unit: 3, exercise: 10 },  /* nicer than */
+            { unit: 6, exercise: 11 },  /* often */
+            { unit: 4, exercise: 9 },   /* I'd love to */
+            { unit: 8, exercise: 3 }    /* there's */
         ];
 
         const selects = document.querySelectorAll(

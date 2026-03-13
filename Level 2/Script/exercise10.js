@@ -101,7 +101,7 @@ exerciseTenPrompts.forEach((text, index) => {
 
 /* EVENT LISTENER – track answers for Exercise 10 (sentence writing) */
 window.addEventListener('load', () => {
-    const button = document.getElementById('check-answers');
+    const button = document.getElementById('check-answers-button');
     if (!button || !window.studentChoices || !window.expectedAnswers) return;
 
     const normalise =

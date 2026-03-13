@@ -108,7 +108,7 @@ function createConversationDropdown (options = []) {
 // When the "Check answers" button is clicked, record which dropdowns were
 // correct or incorrect for Exercise 2.
 window.addEventListener('load', () => {
-    const button = document.getElementById('check-answers');
+    const button = document.getElementById('check-answers-button');
     if (!button || !window.studentChoices || !window.expectedAnswers) return;
 
     button.addEventListener('click', () => {

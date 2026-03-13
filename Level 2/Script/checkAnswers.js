@@ -89,24 +89,14 @@ window.expectedAnswers = expectedAnswers;
 
 /* Button & checking logic */
 
-const buttonAnswersContainer = document.getElementById('button-answers');
+const buttonAnswersContainer = document.getElementById('check-answers');
 
 if (buttonAnswersContainer) {
     const checkButton = document.createElement('button');
-    setAttributeID(checkButton, 'id', 'check-answers');
+    setAttributeID(checkButton, 'id', 'check-answers-button');
     checkButton.textContent = 'Check answers';
 
-    const downloadButton = document.createElement('button');
-    setAttributeID(downloadButton, 'id', 'download-report');
-    downloadButton.setAttribute('aria-label', 'Download report as PDF');
-    downloadButton.innerHTML = [
-        '<svg width="20" height="20" viewBox="0 0 25 25" aria-hidden="true" focusable="false">',
-        '<path fill="currentColor" d="M5 20h14v-2h-2v-2h4v6H3v-6h4v2H5v2zm7-2-6-6h4V4h4v8h4l-6 6z"/>',
-        '</svg>'
-    ].join('');
-
     buttonAnswersContainer.appendChild(checkButton);
-    buttonAnswersContainer.appendChild(downloadButton);
 
     checkButton.addEventListener('click', () => {
         const results = [
@@ -122,41 +112,9 @@ if (buttonAnswersContainer) {
             checkExercise10()
         ];
 
-        const totalCorrect = results.reduce(
-            (sum, result) => sum + (result?.correct ?? 0),
-            0
-        );
-        const totalQuestions = results.reduce(
-            (sum, result) => sum + (result?.total ?? 0),
-            0
-        );
-
-        const percentage =
-            totalQuestions > 0
-                ? Math.round((totalCorrect / totalQuestions) * 100)
-                : 0;
-
-        const message = `You've scored ${totalCorrect} of ${totalQuestions} correct. Your rating is ${percentage}%.`;
-        const passed = percentage >= 80;
-
-        if (window.studentChoices) {
-            if (!Array.isArray(window.studentChoices.overallHistory)) {
-                window.studentChoices.overallHistory = [];
-            }
-            window.studentChoices.overallHistory.push({
-                timestamp: new Date().toISOString(),
-                totalCorrect,
-                totalQuestions,
-                percentage,
-                passed
-            });
+        if (typeof window.calculateIntroOverallScore === 'function') {
+            window.calculateIntroOverallScore(results);
         }
-
-        showResultPopup(message, passed);
-    });
-
-    downloadButton.addEventListener('click', () => {
-        exportStudentReportPdf();
     });
 }
 
@@ -286,79 +244,6 @@ function normaliseSentence (sentence = '') {
 function arraysEqual (a = [], b = []) {
     if (a.length !== b.length) return false;
     return a.every((value, index) => value === b[index]);
-}
-
-function showResultPopup (message, success) {
-    const popup = document.getElementById('popup');
-    if (!popup) {
-        // Fallback if popup container is missing
-        window.alert(message);
-        return;
-    }
-
-    popup.innerHTML = '';
-
-    const close = document.createElement('span');
-    close.textContent = '×';
-    close.classList.add('popup-close');
-    close.addEventListener('click', () => {
-        popup.style.display = 'none';
-        resetAllExercises();
-    });
-
-    const title = document.createElement('h1');
-    title.textContent = success
-        ? 'You can move on to the next level!'
-        : 'You should stay in this level for now.';
-
-    const scoreText = document.createElement('p');
-    scoreText.id = 'score';
-    scoreText.textContent = message;
-
-    popup.appendChild(close);
-    popup.appendChild(title);
-    popup.appendChild(scoreText);
-
-    popup.style.display = 'flex';
-}
-
-function resetAllExercises () {
-    // Reset all dropdowns to their placeholder option
-    const allSelects = document.querySelectorAll(
-        'select.question-dropdown, select.text-dropdown'
-    );
-    allSelects.forEach((select) => {
-        if (select.options && select.options.length > 0) {
-            select.selectedIndex = 0;
-        } else {
-            select.value = '';
-        }
-    });
-
-    // Clear typed answers in Exercise 10
-    const sentenceInputs = document.querySelectorAll(
-        '#exercise-Ten input.sentence-input'
-    );
-    sentenceInputs.forEach((input) => {
-        input.value = '';
-    });
-
-    // Clear connections in Exercise 8 (matching)
-    if (typeof window.resetExerciseEightConnections === 'function') {
-        window.resetExerciseEightConnections();
-    } else if (
-        typeof connectionState !== 'undefined' &&
-        connectionState.questionConnections &&
-        connectionState.answerConnections
-    ) {
-        connectionState.questionConnections.forEach(({ line }) => {
-            if (line && typeof line.remove === 'function') {
-                line.remove();
-            }
-        });
-        connectionState.questionConnections.clear();
-        connectionState.answerConnections.clear();
-    }
 }
 
 function exportStudentReportPdf () {

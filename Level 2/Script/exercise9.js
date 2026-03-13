@@ -98,7 +98,7 @@ function createExerciseNineDropdown (options = []) {
 
 /* EVENT LISTENER – track answers for Exercise 9 */
 window.addEventListener('load', () => {
-    const button = document.getElementById('check-answers');
+    const button = document.getElementById('check-answers-button');
     if (!button || !window.studentChoices || !window.expectedAnswers) return;
 
     button.addEventListener('click', () => {

@@ -27,19 +27,19 @@ const expectedAnswers = {
             'moved',
             'is',
             'am',
-            "'s",
+            '\'s',
             'lives',
-            "didn't",
+            "didn't work",
             'was',
-            "'s teaching",
+            '\'s teaching',
             'is',
             'works',
             'travels',
-            "'s",
+            '\'s',
             'traveling',
             'left',
             'go',
-            'live',
+            '\'m living',
             'go',
             'visit',
             'spending',
@@ -569,7 +569,7 @@ function exportStudentReportPdf () {
 
     // Per‑item mappings taken from the Level 1 guide (pics 2–10)
     const exerciseSpecificConfigs = {
-        // Exercise 2 – 4 items
+        // Exercise 2
         Two: [
             {
                 detailIndex: 0,
@@ -596,7 +596,7 @@ function exportStudentReportPdf () {
                 area: 'Grammar: Simple present questions; short answers'
             }
         ],
-        // Exercise 3 – 5 items
+        // Exercise 3
         Three: [
             {
                 detailIndex: 0,
@@ -629,37 +629,37 @@ function exportStudentReportPdf () {
                 area: 'Grammar: Quantifiers'
             }
         ],
-        // Exercise 4 – 23 notepad blanks + 4 True/False (areas tested per notepad blank)
+        // Exercise 4
         Four: [
             { detailIndex: 0, itemLabel: '1', review: 'Unit 8, Ex.3', area: 'There is, there are; one, any, some;' },
             { detailIndex: 1, itemLabel: '2', review: 'Unit 2, Ex.5', area: 'Simple present Wh-questions and statements' },
             { detailIndex: 2, itemLabel: '3', review: 'Unit 2, Ex.5', area: 'Simple present Wh-questions and statements' },
-            { detailIndex: 3, itemLabel: '4', review: 'Unit 5', area: 'simple past (irregular verbs)' },
-            { detailIndex: 4, itemLabel: '5', review: 'Unit 5', area: 'simple past' },
-            { detailIndex: 5, itemLabel: '6', review: 'Unit 5', area: 'verb BE (present)' },
-            { detailIndex: 6, itemLabel: '7', review: 'Unit 5', area: 'verb BE (present)' },
-            { detailIndex: 7, itemLabel: '8', review: 'Unit 5', area: 'verb BE (present)' },
+            { detailIndex: 3, itemLabel: '4', review: 'INTRO Unit 14, Ex. 5', area: 'Simple Past statements (irregular verbs)' },
+            { detailIndex: 4, itemLabel: '5', review: 'INTRO Unit 14, Ex. 3', area: 'Simple Past statements (regular verbs)' },
+            { detailIndex: 5, itemLabel: '6', review: 'Unit 1, Ex. 5', area: 'Statements with BE (present)' },
+            { detailIndex: 6, itemLabel: '7', review: 'Unit 1, Ex. 5', area: 'Statements with BE (present)' },
+            { detailIndex: 7, itemLabel: '8', review: 'Unit 1, Ex. 5', area: 'Statements with BE (present)' },
             { detailIndex: 8, itemLabel: '9', review: 'Unit 2, Ex.5', area: 'Simple present Wh-questions and statements' },
-            { detailIndex: 9, itemLabel: '10', review: 'Unit 5', area: 'simple past (negative)' },
-            { detailIndex: 10, itemLabel: '11', review: 'Unit 5', area: 'verb BE (past)' },
-            { detailIndex: 11, itemLabel: '12', review: 'Unit 5', area: 'Present Continuous' },
-            { detailIndex: 12, itemLabel: '13', review: 'Unit 5', area: 'verb BE (present)' },
+            { detailIndex: 9, itemLabel: '10', review: 'INTRO Unit 14, Ex. 3', area: 'Simple Past negative statements (regular verbs)' },
+            { detailIndex: 10, itemLabel: '11', review: 'INTRO Unit 15, Ex. 3', area: 'Past of BE' },
+            { detailIndex: 11, itemLabel: '12', review: 'INTRO Unit 4, Ex. 5', area: 'Present Continuous statements' },
+            { detailIndex: 12, itemLabel: '13', review: 'Unit 1, Ex. 5', area: 'Statements with BE (present)' },
             { detailIndex: 13, itemLabel: '14', review: 'Unit 2, Ex.5', area: 'Simple present Wh-questions and statements' },
             { detailIndex: 14, itemLabel: '15', review: 'Unit 2, Ex.5', area: 'Simple present Wh-questions and statements' },
-            { detailIndex: 15, itemLabel: '16', review: 'Unit 5', area: 'verb BE (present)' },
-            { detailIndex: 16, itemLabel: '17', review: 'Unit 5', area: 'Present Continuous' },
-            { detailIndex: 17, itemLabel: '18', review: 'Unit 5', area: 'simple past (irregular verbs)' },
+            { detailIndex: 15, itemLabel: '16', review: 'INTRO Unit 4, Ex. 9', area: 'Present Continuous statements' },
+            { detailIndex: 16, itemLabel: '17', review: 'INTRO Unit 4, Ex. 9', area: 'Present Continuous statements' },
+            { detailIndex: 17, itemLabel: '18', review: 'INTRO Unit 14, Ex. 5', area: 'Simple Past statements (irregular verbs)' },
             { detailIndex: 18, itemLabel: '19', review: 'Unit 2, Ex.5', area: 'Simple present Wh-questions and statements' },
             { detailIndex: 19, itemLabel: '20', review: 'Unit 2, Ex.5', area: 'Simple present Wh-questions and statements' },
             { detailIndex: 20, itemLabel: '21', review: 'Unit 2, Ex.5', area: 'Simple present Wh-questions and statements' },
             { detailIndex: 21, itemLabel: '22', review: 'Unit 2, Ex.5', area: 'Simple present Wh-questions and statements' },
-            { detailIndex: 22, itemLabel: '23', review: 'Unit 5', area: 'enjoy + verb(ing)' },
+            { detailIndex: 22, itemLabel: '23', review: '—', area: 'GERUND with "enjoy" + verb(ing)' },
             { detailIndex: 23, itemLabel: '1', review: 'Unit 5', area: 'Reading: True/False comprehension' },
             { detailIndex: 24, itemLabel: '2', review: 'Unit 5', area: 'Reading: True/False comprehension' },
             { detailIndex: 25, itemLabel: '3', review: 'Unit 5', area: 'Reading: True/False comprehension' },
             { detailIndex: 26, itemLabel: '4', review: 'Unit 5', area: 'Reading: True/False comprehension' }
         ],
-        // Exercise 5 – 6 items
+        // Exercise 5
         Five: [
             {
                 detailIndex: 0,
@@ -698,7 +698,7 @@ function exportStudentReportPdf () {
                 area: 'Grammar: Present continuous'
             }
         ],
-        // Exercise 6 – 5 items
+        // Exercise 6
         Six: [
             {
                 detailIndex: 0,
@@ -731,7 +731,7 @@ function exportStudentReportPdf () {
                 area: 'Vocabulary: Sports and fitness'
             }
         ],
-        // Exercise 7 – 9 items (love has the same tested area as have)
+        // Exercise 7
         Seven: [
             {
                 detailIndex: 0,
@@ -788,7 +788,7 @@ function exportStudentReportPdf () {
                 area: 'Same'
             }
         ],
-        // Exercise 8 – 6 items
+        // Exercise 8
         Eight: [
             {
                 detailIndex: 0,
@@ -827,7 +827,7 @@ function exportStudentReportPdf () {
                 area: 'Grammar: Simple present questions; short answers'
             }
         ],
-        // Exercise 9 – 6 items
+        // Exercise 9
         Nine: [
             {
                 detailIndex: 0,
